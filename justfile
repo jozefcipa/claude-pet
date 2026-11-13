@@ -43,7 +43,8 @@ install-hooks:
           ["PreToolUse", "working", true],
           ["PostToolUse", "thinking", true],
           ["Notification", "attention", false],
-          ["Stop", "done", false]
+          ["Stop", "done", false],
+          ["SessionEnd", "idle", false]
         ) as [$event, $state, $matcher]
         (.; .hooks[$event] = ((.hooks[$event] // []) | strip) + [entry($state; $matcher)])
     ' "{{ settings }}.bak" > "{{ settings }}"

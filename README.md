@@ -14,7 +14,7 @@ A pixel-art desk buddy that acts out what Claude Code is doing. It runs on a sma
 | using Read / Grep / Web | wanders around with a magnifying glass |
 | running a subagent (Task / Agent) | three tiny copies follow it around |
 | using any other tool | juggles |
-| waiting for you (Notification) | jumps, waves, shows Claude's message in a speech bubble, the screen border flashes |
+| waiting for you (permission prompt, AskUserQuestion, plan approval) | jumps, waves, shows Claude's message in a speech bubble, the screen border flashes |
 | finished (Stop) | jumps with confetti |
 | idle | does its own thing: wanders, waves, stretches, dances, hops, naps, leaves the screen and comes back, chases a fly |
 | idle 10+ minutes | sits down and sleeps, screen dims |
@@ -111,7 +111,8 @@ Add this to `~/.claude/settings.json`, adjusting the path to where the repo live
   "PreToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh working" }] }],
   "PostToolUse": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh thinking" }] }],
   "Notification": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh attention" }] }],
-  "Stop": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh done" }] }]
+  "Stop": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh done" }] }],
+  "SessionEnd": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh idle" }] }]
 }
 ```
 
