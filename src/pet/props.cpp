@@ -210,3 +210,26 @@ void drawEffects(uint32_t now) {
   }
   drawSpeech(now);
 }
+
+// Wi-Fi symbol: a dot plus three arcs opening upwards; `bars` of them lit
+static void drawWifiIcon(int x, int y, int bars, uint16_t on, uint16_t off) {
+  gfx->fillCircle(x, y, 3, bars > 0 ? on : off);
+  for (int i = 0; i < 3; i++) {
+    int r = 10 + i * 8;
+    gfx->fillArc(x, y, r, r - 4, 225, 315, i + 1 < bars ? on : off);
+  }
+}
+
+void drawOfflineEffects(uint32_t now, bool searching) {
+  int top = botTop(bot, U);
+  int x = (int)bot.x, y = top - 14;
+  if (searching) {
+    drawWifiIcon(x, y, (now / 350) % 5, CREAM, GRAY_DARK);
+  } else {
+    drawWifiIcon(x, y, 4, GRAY, GRAY);
+    for (int d = -1; d <= 1; d++) { // thick slash
+      gfx->drawLine(x - 18 + d, y - 30, x + 18 + d, y + 4, RED);
+    }
+  }
+  drawSpeech(now);
+}

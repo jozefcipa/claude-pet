@@ -10,6 +10,8 @@
 #include "secrets.h"
 
 static WebServer server(80);
+static uint32_t offlineSince = 0;
+static uint32_t lastAttempt = 0;
 
 static void handleState() {
   State s;
@@ -46,6 +48,7 @@ void netInit() {
   WiFi.setHostname(HOSTNAME);
   if (netConfigured()) {
     WiFi.begin(WIFI_SSID, WIFI_PASS);
+    lastAttempt = millis();
   }
   configTzTime(TZ_INFO, "pool.ntp.org");
 
@@ -58,6 +61,20 @@ void netInit() {
 
 void netLoop() {
   static bool mdnsUp = false;
+  uint32_t now = millis();
+  if (netConnected()) {
+    offlineSince = 0;
+  } else if (netConfigured()) {
+    if (!offlineSince) {
+      offlineSince = now;
+    }
+    // auto-reconnect doesn't cover every failure (e.g. AP missing at boot), so retry ourselves too
+    if (now - lastAttempt > WIFI_RETRY_MS) {
+      lastAttempt = now;
+      WiFi.disconnect();
+      WiFi.begin(WIFI_SSID, WIFI_PASS);
+    }
+  }
   if (!mdnsUp && netConnected()) {
     mdnsUp = MDNS.begin(HOSTNAME);
     MDNS.addService("http", "tcp", 80);
@@ -72,6 +89,16 @@ bool netConfigured() {
 
 bool netConnected() {
   return WiFi.status() == WL_CONNECTED;
+}
+
+NetStatus netStatus(uint32_t now) {
+  if (!netConfigured()) {
+    return NET_DEMO;
+  }
+  if (netConnected()) {
+    return NET_ONLINE;
+  }
+  return offlineSince && now - offlineSince > NO_WIFI_AFTER_MS ? NET_NO_WIFI : NET_CONNECTING;
 }
 
 void netPowerSave(bool on) {

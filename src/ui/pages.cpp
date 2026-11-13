@@ -11,9 +11,6 @@ using namespace color;
 static void drawHud() {
   char buf[24];
   if (pet.state == IDLE || pet.state == SLEEP) {
-    if (!netConnected()) {
-      text("no wifi", 8, 8, 1, GRAY);
-    }
     if (usage.has && pet.state == IDLE) {
       char n[16];
       fmtTokens(usage.today, n, sizeof(n));
@@ -34,7 +31,26 @@ static void drawHud() {
   }
 }
 
-void drawPetPage(uint32_t now) {
+static void drawOffline(uint32_t now, bool searching) {
+  scenesOffline(now, searching);
+  drawPropsBehind(now);
+  drawBot(bot, U);
+  drawOfflineEffects(now, searching);
+  if (searching) {
+    char label[16] = "connecting";
+    strncat(label, "...", (now / 400) % 4); // animated dots
+    text(label, 10, 10, 2, CREAM);
+  } else {
+    text("no wifi", 10, 10, 2, ORANGE);
+    text("retrying in the background", 10, 32, 1, GRAY);
+  }
+}
+
+void drawPetPage(uint32_t now, NetStatus net) {
+  if (net == NET_CONNECTING || net == NET_NO_WIFI) {
+    drawOffline(now, net == NET_CONNECTING);
+    return;
+  }
   scenesUpdate(now);
   drawPropsBehind(now);
   drawBot(bot, U);

@@ -14,6 +14,7 @@
 static Page page = PAGE_PET;
 static uint32_t sceneSince = UINT32_MAX;
 static State prevState = IDLE;
+static NetStatus prevNet = NET_DEMO;
 
 static void onSceneChange(uint32_t now) {
   scenesReset();
@@ -32,6 +33,22 @@ static void onSceneChange(uint32_t now) {
   }
   speechOnScene(prevState, now);
   prevState = pet.state;
+}
+
+// The bot reacts when Wi-Fi comes and goes
+static void onNetChange(NetStatus net, uint32_t now) {
+  if (net == NET_ONLINE && prevNet != NET_DEMO) {
+    say("Connected!", now);
+    pet.tapAt = now; // happy hop
+  } else if (net == NET_CONNECTING && prevNet == NET_ONLINE) {
+    say("Lost Wi-Fi!", now);
+  } else if (net == NET_NO_WIFI) {
+    say("Can't find Wi-Fi...", now);
+  }
+  if (net != NET_ONLINE && pet.state == OFF) {
+    petPoke(now); // wake the screen so the problem is visible
+  }
+  prevNet = net;
 }
 
 static void handleInput(uint32_t now) {
@@ -64,6 +81,10 @@ void loop() {
   uint32_t now = millis();
 
   netLoop();
+  NetStatus net = netStatus(now);
+  if (net != prevNet) {
+    onNetChange(net, now);
+  }
   handleInput(now);
   if (!netConfigured()) {
     demoTick(now);
@@ -84,7 +105,7 @@ void loop() {
   lastFrame = now;
   gfx->fillScreen(color::BG);
   if (page == PAGE_PET) {
-    drawPetPage(now);
+    drawPetPage(now, net);
   } else {
     drawUsagePage();
   }

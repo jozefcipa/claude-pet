@@ -29,6 +29,8 @@ extern Scene scene;
 void scenesReset();
 // Moves the bot and sets its pose for this frame, based on pet state
 void scenesUpdate(uint32_t now);
+// Pose while there is no Wi-Fi: scanning for a signal, or sitting sadly
+void scenesOffline(uint32_t now, bool searching);
 // A tap wakes it from a nap
 void scenesPoke(uint32_t now);
 // Where the fly is during ANT_FLY; false when there is no fly on screen

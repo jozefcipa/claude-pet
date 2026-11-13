@@ -331,6 +331,35 @@ static void baseline(uint32_t now) {
   bot.eyes = now - blinkStart < 130 ? EYES_BLINK : EYES_OPEN;
 }
 
+// a poke: hop + happy eyes
+static void applyPoke(uint32_t now) {
+  uint32_t sinceTap = now - pet.tapAt;
+  if (sinceTap < 400) {
+    bot.y += sinf(PI * sinceTap / 400.0f) * 12;
+  }
+  if (sinceTap < 900 && pet.state != SLEEP) {
+    bot.eyes = EYES_HAPPY;
+  }
+}
+
+void scenesOffline(uint32_t now, bool searching) {
+  baseline(now);
+  if (walkTo(W / 2, 2.0f, now)) {
+    if (searching) {
+      bot.lookX = (int)(sinf(now / 600.0f) * 5); // scanning left and right
+      bot.lookY = -4;
+      bot.armR = 2;                              // arm up like an antenna
+      bot.armL = (now / 400) % 2;
+    } else {
+      bot.legs = -1;
+      bot.lookX = 0;
+      bot.lookY = 4;                             // looking down, a bit sad
+      bot.y = (now / 2000) % 2;
+    }
+  }
+  applyPoke(now);
+}
+
 void scenesUpdate(uint32_t now) {
   baseline(now);
   switch (pet.state) {
@@ -351,12 +380,5 @@ void scenesUpdate(uint32_t now) {
     default: break;
   }
 
-  // a poke: hop + happy eyes
-  uint32_t sinceTap = now - pet.tapAt;
-  if (sinceTap < 400) {
-    bot.y += sinf(PI * sinceTap / 400.0f) * 12;
-  }
-  if (sinceTap < 900 && pet.state != SLEEP) {
-    bot.eyes = EYES_HAPPY;
-  }
+  applyPoke(now);
 }

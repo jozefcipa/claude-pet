@@ -7,3 +7,5 @@ void drawPropsBehind(uint32_t now);
 void drawPropsFront(uint32_t now);
 // Bubbles, hearts, confetti, z's, attention border
 void drawEffects(uint32_t now);
+// Wi-Fi icon over the bot: filling up while searching, crossed out when there is none
+void drawOfflineEffects(uint32_t now, bool searching);

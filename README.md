@@ -19,6 +19,8 @@ A pixel-art desk buddy that acts out what Claude Code is doing. It runs on a sma
 | idle | does its own thing: wanders, waves, stretches, dances, hops, naps, leaves the screen and comes back, chases a fly |
 | idle 10+ minutes | sits down and sleeps, screen dims |
 | idle 1+ hour | screen off; the next hook event or a tap wakes it |
+| connecting to Wi-Fi | stands in the middle with an arm up like an antenna, scanning, while a Wi-Fi icon fills up; hops and says "Connected!" once online |
+| no Wi-Fi for 20+ s | sits down looking sad under a crossed-out Wi-Fi icon, keeps retrying every 15 s |
 
 Touch:
 
@@ -186,6 +188,8 @@ Most knobs are in `src/config.h`:
 | `U` | `6` | bot pixel size |
 | `SLEEP_AFTER_MS` | 10 min | idle time before it falls asleep |
 | `OFF_AFTER_MS` | 1 h | idle time before the screen turns off |
+| `NO_WIFI_AFTER_MS` | 20 s | how long "connecting" shows before "no wifi" |
+| `WIFI_RETRY_MS` | 15 s | how often it retries while offline |
 | `THINK_DEBOUNCE_MS` | 1.5 s | delay before "thinking" after a tool, so back-to-back tools don't flicker |
 | `BL_ON` / `BL_SLEEP` | 255 / 25 | backlight brightness awake / asleep |
 
