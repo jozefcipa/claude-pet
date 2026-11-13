@@ -28,4 +28,4 @@ bool parseState(const char *name, State &out);
 void petEvent(State s, const char *tool, const char *msg = "");
 void petPoke(uint32_t now);
 // Timeouts: done -> idle -> sleep, stale busy -> idle
-void petTick(uint32_t now);
+void petTick();

@@ -89,7 +89,7 @@ void loop() {
   if (!netConfigured()) {
     demoTick(now);
   }
-  petTick(now);
+  petTick();
   if (pet.since != sceneSince) {
     sceneSince = pet.since;
     onSceneChange(now);

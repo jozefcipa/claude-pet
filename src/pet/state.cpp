@@ -78,7 +78,10 @@ void petPoke(uint32_t now) {
   }
 }
 
-void petTick(uint32_t now) {
+void petTick() {
+  // Read the clock here, not in loop(): events stamp millis() during netLoop(),
+  // so an older `now` would underflow `now - pet.since` and fire every timeout at once.
+  uint32_t now = millis();
   if (pet.pendingThinkAt && now > pet.pendingThinkAt) {
     pet.tool[0] = 0;
     pet.msg[0] = 0;
