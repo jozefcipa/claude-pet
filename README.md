@@ -39,7 +39,6 @@ Notes:
 
 - The pin table on Waveshare's wiki is wrong. The pins in `src/config.h` come from their demo code and schematic.
 - The onboard red PWR and green CHG LEDs are hardwired to power and the charger chip. They can't be controlled from code.
-- Optional: a WS2812 RGB LED on header pin **GPIO7** (plus 3V3 and GND) gives an orange status light that breathes while Claude works and blinks when it needs you. The firmware drives it whether or not it's connected.
 
 ## How it works
 
@@ -166,7 +165,6 @@ src/
   input/touch.*     tap and swipe detection
   net/net.*         Wi-Fi, mDNS, HTTP API
   usage/usage.*     token stats and formatting
-  led/led.*         optional WS2812 status light
 lib/axs5106l/       touch driver from the Waveshare demo
 scripts/
   hook.sh           Claude Code hook -> /state
@@ -190,7 +188,6 @@ Most knobs are in `src/config.h`:
 | `OFF_AFTER_MS` | 1 h | idle time before the screen turns off |
 | `THINK_DEBOUNCE_MS` | 1.5 s | delay before "thinking" after a tool, so back-to-back tools don't flicker |
 | `BL_ON` / `BL_SLEEP` | 255 / 25 | backlight brightness awake / asleep |
-| `LED_MAX` | 120 | WS2812 brightness cap |
 
 Idle antic weights and durations are in the `ANTICS` table in `src/pet/scenes.cpp`. Speech lines are at the top of `src/pet/speech.cpp`. Tool-to-animation mapping is `activityFor()` in `src/pet/state.cpp`.
 

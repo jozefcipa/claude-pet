@@ -4,7 +4,6 @@
 #include "config.h"
 #include "display/display.h"
 #include "input/touch.h"
-#include "led/led.h"
 #include "net/net.h"
 #include "pet/demo.h"
 #include "pet/scenes.h"
@@ -57,7 +56,6 @@ void setup() {
   randomSeed(esp_random());
   displayInit();
   touchInit();
-  ledInit();
   netInit();
 }
 
@@ -75,7 +73,6 @@ void loop() {
     sceneSince = pet.since;
     onSceneChange(now);
   }
-  ledUpdate(now, pet.state, pet.since);
 
   if (pet.state == OFF) {
     delay(20); // nothing to draw; keep polling Wi-Fi and touch for a wake-up
