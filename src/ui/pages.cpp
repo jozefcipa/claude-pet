@@ -9,21 +9,12 @@
 using namespace color;
 
 static void drawHud() {
-  char buf[24];
-  if (pet.state == IDLE || pet.state == SLEEP) {
-    if (usage.has && pet.state == IDLE) {
-      char n[16];
-      fmtTokens(usage.today, n, sizeof(n));
-      snprintf(buf, sizeof(buf), "%s tokens", n);
-      text(buf, W - 8 - textW(buf, 1), H - 11, 1, GRAY);
-    }
-    return;
+  if (pet.state == IDLE && usage.has) {
+    char n[16], buf[24];
+    fmtTokens(usage.today, n, sizeof(n));
+    snprintf(buf, sizeof(buf), "%s tokens", n);
+    text(buf, W - 8 - textW(buf, 1), H - 11, 1, GRAY);
   }
-  const char *label = pet.state == THINKING ? "thinking"
-    : pet.state == WORKING ? "working"
-    : pet.state == ATTENTION ? "needs you!"
-    : "done!";
-  text(label, 10, 10, 2, pet.state == ATTENTION ? ORANGE : CREAM);
   if (pet.state == WORKING && pet.tool[0]) {
     char shortTool[13];
     strlcpy(shortTool, pet.tool, sizeof(shortTool));

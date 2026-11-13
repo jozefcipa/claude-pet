@@ -85,7 +85,7 @@
       <text x="85" y="474" class="g">runs in background</text>
       <text x="85" y="488" class="g">1s timeout</text>
       <rect x="208" y="425" width="123" height="74" rx="6" class="chip"/>
-      <text x="218" y="443" class="mono h" font-size="12">usage.ts</text>
+      <text x="218" y="443" class="mono h" font-size="12">usage.sh</text>
       <text x="218" y="460" class="g">runs on Stop</text>
       <text x="218" y="474" class="g">sums today's tokens</text>
       <text x="218" y="488" class="g">from transcripts</text>

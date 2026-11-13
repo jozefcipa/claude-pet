@@ -4,7 +4,7 @@
 
 enum Page { PAGE_PET, PAGE_USAGE };
 
-// The bot with its props, effects and the status line/clock
+// The bot with its props, effects and the tool name / token count
 void drawPetPage(uint32_t now, NetStatus net);
 // Today's tokens + 7-day bars
 void drawUsagePage();

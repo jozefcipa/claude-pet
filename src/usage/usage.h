@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// Token usage pushed by scripts/usage.ts
+// Token usage pushed by scripts/usage.sh
 struct Usage {
   uint64_t today = 0;
   int sessions = 0;

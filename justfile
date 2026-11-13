@@ -19,7 +19,7 @@ setup:
       cp src/secrets.example.h src/secrets.h
       echo "created src/secrets.h, now fill in WIFI_SSID and WIFI_PASS (2.4 GHz network)"
     fi
-    for tool in jq curl node; do
+    for tool in jq curl; do
       command -v "$tool" >/dev/null || echo "missing: $tool"
     done
     [ -x "{{ pio }}" ] || command -v pio >/dev/null || echo "missing: PlatformIO (https://platformio.org)"
@@ -95,11 +95,11 @@ status:
 
 # push today's token usage to the pet now
 usage:
-    node scripts/usage.ts
+    scripts/usage.sh
 
 # print the usage numbers without sending them
 usage-dry:
-    node scripts/usage.ts --dry
+    scripts/usage.sh --dry
 
 # walk the pet through every state, 5s each
 tour:

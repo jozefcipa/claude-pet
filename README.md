@@ -58,7 +58,7 @@ The Mac always starts the conversation and the board only answers. Several Claud
 | Request | Sent by | Effect |
 |---|---|---|
 | `GET /state?s=<state>&tool=<name>&msg=<text>` | `scripts/hook.sh` | changes what the pet is doing |
-| `GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g` | `scripts/usage.ts`, after each reply | updates the token stats |
+| `GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g` | `scripts/usage.sh`, after each reply | updates the token stats |
 | `GET /say?msg=<text>&ms=<duration>` | `scripts/say.sh` | speech bubble only, the state doesn't change |
 | `GET /` | you | returns the current state |
 
@@ -73,7 +73,7 @@ There is no authentication: anyone on your Wi-Fi can send it messages.
 
 ## Setup
 
-Requirements: [just](https://github.com/casey/just), [PlatformIO](https://platformio.org/) Core 6.2+, `jq`, `curl` and Node 26+ (runs `usage.ts` directly). The firmware uses the [pioarduino](https://github.com/pioarduino/platform-espressif32) platform, which supports the C6 with Arduino.
+Requirements: [just](https://github.com/casey/just), [PlatformIO](https://platformio.org/) Core 6.2+, `jq` and `curl`. The firmware uses the [pioarduino](https://github.com/pioarduino/platform-espressif32) platform, which supports the C6 with Arduino.
 
 ### 1. Wi-Fi
 
@@ -159,14 +159,14 @@ src/
     props.*         laptop, blocks, magnifier, bubbles, confetti, the fly
     speech.*        speech bubbles and their lines
     demo.*          scene cycle used until Wi-Fi is configured
-  ui/pages.*        pet page and status line, usage page
+  ui/pages.*        pet page, usage page
   input/touch.*     tap and swipe detection
   net/net.*         Wi-Fi, mDNS, HTTP API
   usage/usage.*     token stats and formatting
 lib/axs5106l/       touch driver from the Waveshare demo
 scripts/
   hook.sh           Claude Code hook -> /state
-  usage.ts          sums today's tokens from ~/.claude/projects -> /usage
+  usage.sh          sums today's tokens from ~/.claude/projects -> /usage
   say.sh            speech bubble from the terminal -> /say
 docs/flow.svg       the diagram above
 justfile            setup, build, flash and test commands

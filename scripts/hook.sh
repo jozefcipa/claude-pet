@@ -8,6 +8,6 @@ msg=$(printf '%s' "$input" | jq -r '.message // empty' 2>/dev/null) # Notificati
 curl -4 -s -m 1 -G "http://$HOST/state" \
   --data-urlencode "s=$1" --data-urlencode "tool=$tool" --data-urlencode "msg=$msg" >/dev/null 2>&1 &
 if [ "$1" = done ]; then
-  node "$(dirname "$0")/usage.ts" >/dev/null 2>&1 &
+  "$(dirname "$0")/usage.sh" >/dev/null 2>&1 &
 fi
 exit 0

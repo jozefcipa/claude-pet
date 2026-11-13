@@ -166,7 +166,7 @@ void drawSpeech(uint32_t now) {
   int w = longest * charW + 2 * pad, h = n * lineH - 4 + 2 * pad;
   int top = botTop(bot, U);
   int bx = constrain((int)bot.x - w / 2, 4, W - 4 - w);
-  int minY = pet.state == IDLE || pet.state == SLEEP ? 4 : 30; // stay below the status line
+  int minY = pet.state == WORKING ? 30 : 4; // stay below the tool name
   int by = max(minY, top - 16 - h);
 
   // pixel-art bubble: clipped corners + a stepped tail toward the bot

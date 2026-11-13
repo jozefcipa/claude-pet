@@ -15,14 +15,14 @@ All tasks go through `just` (run `just` to list them):
 - `just state <name> ["msg"] ["tool"]` - drive the pet by hand, e.g. `just state working "" Bash`
 - `just tour` - cycle every state, 5 s each (visual check of all scenes)
 - `just say "msg" [ms]`, `just status`
-- `just usage-dry` - run `scripts/usage.ts` without sending (Node 26 runs `.ts` directly, no build step)
+- `just usage-dry` - run `scripts/usage.sh` without sending
 - `just install` / `just uninstall-hooks` - edit `~/.claude/settings.json` hooks via `jq` (idempotent, backs up first)
 
 `src/secrets.h` (gitignored, from `secrets.example.h` via `just setup`) must exist to build. Empty `WIFI_SSID` = demo mode (`pet/demo.*` cycles scenes). Set `CLAUDE_PET_HOST` to target an IP instead of `claude-pet.local`. Always use `curl -4` against the board (macOS IPv6 mDNS lookup hangs ~5 s otherwise).
 
 ## Architecture
 
-**Data flow:** Claude Code hook -> `scripts/hook.sh <state>` (extracts `tool_name`/`message` with jq, backgrounded `curl` with 1 s timeout, never blocks Claude; on `done` also runs `usage.ts`) -> HTTP on the board (`net/net.cpp`, `WebServer` on port 80, mDNS `claude-pet.local`) -> `petEvent()` in `pet/state.cpp` -> scene picked next frame. The Mac always initiates; the board only answers. Multiple Claude sessions share one pet, last event wins.
+**Data flow:** Claude Code hook -> `scripts/hook.sh <state>` (extracts `tool_name`/`message` with jq, backgrounded `curl` with 1 s timeout, never blocks Claude; on `done` also runs `usage.sh`) -> HTTP on the board (`net/net.cpp`, `WebServer` on port 80, mDNS `claude-pet.local`) -> `petEvent()` in `pet/state.cpp` -> scene picked next frame. The Mac always initiates; the board only answers. Multiple Claude sessions share one pet, last event wins.
 
 **Single-threaded loop** (`src/main.cpp`): each `loop()` runs `netLoop()` (which calls `server.handleClient()`, so HTTP handlers run synchronously inside the loop, no locking needed), touch input, `petTick()` timeouts, then redraws at ~30 fps (`FRAME_MS`). `main.cpp` only wires modules together; keep logic in the modules.
 
@@ -42,4 +42,4 @@ All tasks go through `just` (run `just` to list them):
 
 ## Style
 
-C++: one-line `if` bodies always get braces; tuning constants live in `src/config.h` as `constexpr`. TypeScript (`scripts/usage.ts`): no semicolons, single quotes, stdlib only (no `package.json`). No em dashes anywhere.
+C++: one-line `if` bodies always get braces; tuning constants live in `src/config.h` as `constexpr`. No em dashes anywhere.
