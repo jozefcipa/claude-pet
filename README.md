@@ -59,7 +59,7 @@ The Mac always starts the conversation and the board only answers. Several Claud
 |---|---|---|
 | `GET /state?s=<state>&tool=<name>&msg=<text>` | `scripts/hook.sh` | changes what the pet is doing |
 | `GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g` | `scripts/usage.ts`, after each reply | updates the token stats |
-| `GET /say?msg=<text>&ms=<duration>` | `skills/pet-say/say.sh` (the `/pet-say` skill) | speech bubble only, the state doesn't change |
+| `GET /say?msg=<text>&ms=<duration>` | `scripts/say.sh` | speech bubble only, the state doesn't change |
 | `GET /` | you | returns the current state |
 
 States: `idle`, `thinking`, `working`, `attention`, `done`, `sleep`, `off`.
@@ -91,13 +91,13 @@ Plug the board in over USB, then:
 just dev   # flash + serial console, prints "ready: http://claude-pet.local (192.168.x.x)" once on Wi-Fi
 ```
 
-### 3. Claude Code hooks and the skill
+### 3. Claude Code hooks
 
 ```sh
 just install
 ```
 
-This adds the hooks to `~/.claude/settings.json` (after backing it up to `settings.json.bak`) and symlinks the `/pet-say` skill into `~/.claude/skills`. Running it again won't duplicate anything, and it keeps any other hooks you have. Start a new Claude session afterwards. `just uninstall-hooks` removes them again.
+This adds the hooks to `~/.claude/settings.json` (after backing it up to `settings.json.bak`). Running it again won't duplicate anything, and it keeps any other hooks you have. Start a new Claude session afterwards. `just uninstall-hooks` removes them again.
 
 <details>
 <summary>Manual hook setup</summary>
@@ -115,8 +115,6 @@ Add this to `~/.claude/settings.json`, adjusting the path to where the repo live
 }
 ```
 
-And for the skill: `ln -s "$PWD/skills/pet-say" ~/.claude/skills/pet-say`
-
 </details>
 
 ### 4. Try it
@@ -126,14 +124,12 @@ just tour            # walks the pet through every state, 5s each
 just say "hello!"    # speech bubble
 ```
 
-In Claude, ask it to "show 'lunch time!' on the pet", or run `/pet-say hello`.
-
 ## Commands
 
 | Command | What it does |
 |---|---|
 | `just setup` | create `src/secrets.h`, check tools |
-| `just install` | hooks + `/pet-say` skill (`install-hooks`, `install-skill` separately) |
+| `just install` | install the hooks (same as `install-hooks`) |
 | `just uninstall-hooks` | remove the pet hooks, keep the rest of your settings |
 | `just build` | compile the firmware |
 | `just flash` | compile and flash over USB |
@@ -171,8 +167,6 @@ lib/axs5106l/       touch driver from the Waveshare demo
 scripts/
   hook.sh           Claude Code hook -> /state
   usage.ts          sums today's tokens from ~/.claude/projects -> /usage
-skills/pet-say/
-  SKILL.md          Claude Code skill for sending messages
   say.sh            speech bubble from the terminal -> /say
 docs/flow.svg       the diagram above
 justfile            setup, build, flash and test commands

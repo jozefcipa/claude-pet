@@ -4,7 +4,6 @@ pio := `command -v pio || echo "$HOME/.platformio/penv/bin/pio"`
 host := env("CLAUDE_PET_HOST", "claude-pet.local")
 hook := justfile_directory() / "scripts/hook.sh"
 settings := env("HOME") / ".claude/settings.json"
-skill_link := env("HOME") / ".claude/skills/pet-say"
 
 # list recipes
 default:
@@ -25,8 +24,8 @@ setup:
     done
     [ -x "{{ pio }}" ] || command -v pio >/dev/null || echo "missing: PlatformIO (https://platformio.org)"
 
-# install the Claude Code hooks and the /pet-say skill
-install: install-hooks install-skill
+# install the Claude Code hooks
+install: install-hooks
 
 # add the hooks to ~/.claude/settings.json (idempotent, backs the file up first)
 install-hooks:
@@ -62,12 +61,6 @@ uninstall-hooks:
     ' "{{ settings }}.bak" > "{{ settings }}"
     echo "hooks removed (backup: {{ settings }}.bak)"
 
-# symlink the /pet-say skill into ~/.claude/skills
-install-skill:
-    mkdir -p "$(dirname "{{ skill_link }}")"
-    ln -sfn "{{ justfile_directory() }}/skills/pet-say" "{{ skill_link }}"
-    @echo "skill linked: {{ skill_link }}"
-
 # compile the firmware
 build:
     {{ pio }} run
@@ -89,7 +82,7 @@ clean:
 
 # show a speech bubble, e.g. `just say "hello"`
 say message duration="0":
-    skills/pet-say/say.sh "{{ message }}" {{ duration }}
+    scripts/say.sh "{{ message }}" {{ duration }}
 
 # set the pet state, e.g. `just state attention "Need you!"`
 state name msg="" tool="":
