@@ -21,8 +21,10 @@ static void onSceneChange(uint32_t now) {
   if (pet.state == OFF) {
     displayPower(false);
     netPowerSave(true);
+    setCpuFrequencyMhz(80); // lowest that keeps Wi-Fi alive for a wake-up hook
   } else {
     if (prevState == OFF) {
+      setCpuFrequencyMhz(160);
       displayPower(true);
       netPowerSave(false);
     }
@@ -59,6 +61,9 @@ static void handleInput(uint32_t now) {
         scenesPoke(now);
         speechOnPoke(now);
       }
+      break;
+    case TOUCH_LONG:
+      petToggleOff(now);
       break;
     case TOUCH_SWIPE:
       page = page == PAGE_PET ? PAGE_USAGE : PAGE_PET;

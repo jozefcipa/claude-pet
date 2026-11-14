@@ -17,14 +17,15 @@ A pixel-art desk buddy that acts out what Claude Code is doing. It runs on a sma
 | waiting for you (permission prompt, AskUserQuestion, plan approval) | jumps, waves, shows Claude's message in a speech bubble, the screen border flashes |
 | finished (Stop) | jumps with confetti |
 | idle | does its own thing: wanders, waves, stretches, dances, hops, naps, leaves the screen and comes back, chases a fly |
-| idle 10+ minutes | sits down and sleeps, screen dims |
-| idle 1+ hour | screen off; the next hook event or a tap wakes it |
+| idle 5+ minutes | sits down and sleeps, screen dims |
+| idle 20+ minutes | standby: screen off, Wi-Fi and CPU in power save; the next hook event or a tap wakes it |
 | connecting to Wi-Fi | stands in the middle with an arm up like an antenna, scanning, while a Wi-Fi icon fills up; hops and says "Connected!" once online |
 | no Wi-Fi for 20+ s | sits down looking sad under a crossed-out Wi-Fi icon, keeps retrying every 15 s |
 
 Touch:
 
 - **tap**: poke the bot (it hops, a heart pops up), dismiss "needs you", or wake it up
+- **long press (2 s)**: turn off now; ignores hooks and taps for 1 h or until the next long press, then back to normal standby
 - **swipe sideways**: switch to the usage page (today's tokens, sessions, last 7 days)
 
 The bot also talks in speech bubbles. Claude's own messages (like a permission request) take priority, otherwise it picks a short line that fits what it's doing. Claude Code's spinner word ("Scampering...") isn't passed to hooks, so while thinking the pet picks from its own list of similar words.
@@ -181,8 +182,9 @@ Most knobs are in `src/config.h`:
 |---|---|---|
 | `ROTATION` | `1` | `1` or `3`: which side the USB port ends up on |
 | `U` | `6` | bot pixel size |
-| `SLEEP_AFTER_MS` | 10 min | idle time before it falls asleep |
-| `OFF_AFTER_MS` | 1 h | idle time before the screen turns off |
+| `SLEEP_AFTER_MS` | 5 min | idle time before it falls asleep |
+| `OFF_AFTER_MS` | 20 min | idle time before the screen turns off |
+| `HOLD_OFF_MS` | 1 h | how long a long press keeps it off |
 | `NO_WIFI_AFTER_MS` | 20 s | how long "connecting" shows before "no wifi" |
 | `WIFI_RETRY_MS` | 15 s | how often it retries while offline |
 | `THINK_DEBOUNCE_MS` | 1.5 s | delay before "thinking" after a tool, so back-to-back tools don't flicker |

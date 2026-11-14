@@ -60,6 +60,9 @@ static void petSet(State s) {
 }
 
 void petEvent(State s, const char *tool, const char *msg) {
+  if (pet.held) {
+    return;
+  }
   if (s == THINKING && pet.state == WORKING) {
     pet.pendingThinkAt = millis() + THINK_DEBOUNCE_MS;
     pet.lastEvent = millis();
@@ -71,6 +74,9 @@ void petEvent(State s, const char *tool, const char *msg) {
 }
 
 void petPoke(uint32_t now) {
+  if (pet.held) {
+    return;
+  }
   pet.tapAt = now;
   if (pet.state == ATTENTION || pet.state == SLEEP || pet.state == OFF || pet.state == DONE) {
     pet.msg[0] = 0;
@@ -78,10 +84,27 @@ void petPoke(uint32_t now) {
   }
 }
 
+void petToggleOff(uint32_t now) {
+  if (pet.held) {
+    pet.held = false;
+    petPoke(now);
+    return;
+  }
+  pet.held = true;
+  pet.heldAt = now;
+  pet.msg[0] = 0;
+  petSet(OFF);
+}
+
 void petTick() {
   // Read the clock here, not in loop(): events stamp millis() during netLoop(),
   // so an older `now` would underflow `now - pet.since` and fire every timeout at once.
   uint32_t now = millis();
+  if (pet.held) {
+    // stays in OFF standby afterwards, the next hook or tap wakes it as usual
+    pet.held = now - pet.heldAt < HOLD_OFF_MS;
+    return;
+  }
   if (pet.pendingThinkAt && now > pet.pendingThinkAt) {
     pet.tool[0] = 0;
     pet.msg[0] = 0;

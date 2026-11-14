@@ -9,6 +9,8 @@ constexpr int SWIPE_PX = 40;
 constexpr int TAP_PX = 15;
 
 static bool touching = false;
+static bool longFired = false;
+static uint32_t downAt = 0;
 static int startX = 0, startY = 0, endX = 0, endY = 0;
 static uint32_t lastSeen = 0;
 
@@ -23,18 +25,27 @@ TouchEvent touchPoll(uint32_t now) {
   if (bsp_touch_get_coordinates(&td)) {
     if (!touching) {
       touching = true;
+      longFired = false;
+      downAt = now;
       startX = td.coords[0].x;
       startY = td.coords[0].y;
     }
     endX = td.coords[0].x;
     endY = td.coords[0].y;
     lastSeen = now;
+    if (!longFired && now - downAt > LONG_PRESS_MS && abs(endX - startX) < TAP_PX && abs(endY - startY) < TAP_PX) {
+      longFired = true;
+      return TOUCH_LONG;
+    }
     return TOUCH_NONE;
   }
   if (!touching || now - lastSeen <= RELEASE_MS) {
     return TOUCH_NONE;
   }
   touching = false;
+  if (longFired) {
+    return TOUCH_NONE;
+  }
   int dx = endX - startX, dy = endY - startY;
   if (abs(dx) > SWIPE_PX && abs(dx) > abs(dy)) {
     return TOUCH_SWIPE;
