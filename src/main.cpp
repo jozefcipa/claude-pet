@@ -15,6 +15,7 @@ static Page page = PAGE_PET;
 static uint32_t sceneSince = UINT32_MAX;
 static State prevState = IDLE;
 static NetStatus prevNet = NET_DEMO;
+static uint32_t bootAt = 0;
 
 static void onSceneChange(uint32_t now) {
   scenesReset();
@@ -79,6 +80,7 @@ void setup() {
   displayInit();
   touchInit();
   netInit();
+  bootAt = millis();
 }
 
 void loop() {
@@ -109,7 +111,9 @@ void loop() {
   }
   lastFrame = now;
   gfx->fillScreen(color::BG);
-  if (page == PAGE_PET) {
+  if (now - bootAt < BOOT_MS) {
+    drawBootPage(now - bootAt);
+  } else if (page == PAGE_PET) {
     drawPetPage(now, net);
   } else {
     drawUsagePage();

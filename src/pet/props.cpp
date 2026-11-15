@@ -22,12 +22,13 @@ static void drawBubble(int x, int y, const char *s) {
   centerText(s, x + 1, y + 4, 2, BG);
 }
 
-static void drawHeart(int x, int y) {
+// 7x6 pixel heart, s px per pixel
+static void drawHeart(int x, int y, int s = 3) {
   static const char *rows[] = { ".XX.XX.", "XXXXXXX", "XXXXXXX", ".XXXXX.", "..XXX..", "...X..." };
   for (int r = 0; r < 6; r++) {
     for (int c = 0; c < 7; c++) {
       if (rows[r][c] == 'X') {
-        gfx->fillRect(x + c * 3, y + r * 3, 3, 3, RED);
+        gfx->fillRect(x + c * s, y + r * s, s, s, RED);
       }
     }
   }
@@ -181,6 +182,46 @@ void drawPropsFront(uint32_t now) {
   }
 }
 
+static void drawReaction(uint32_t now, int top) {
+  uint32_t t = now - pet.tapAt;
+  if (t >= reactionMs() || pet.state == SLEEP) {
+    return;
+  }
+  int x = (int)bot.x;
+  int side = x > W / 2 ? -1 : 1; // the side with more room
+  switch (scene.reaction) {
+    case REACT_HOP: // a small heart floats up beside it
+      drawHeart(x + side * 60 - 10, top + 10 - t / 30);
+      break;
+    case REACT_BLUSH: // pink cheeks under the eyes
+      for (int c : { 2, 12 }) {
+        gfx->fillRect(x - 8 * U + c * U, top + 5 * U, 2 * U, U, PINK);
+      }
+      break;
+    case REACT_KISS: { // a heart flies out, growing as if coming at you
+      if (t < 350) {
+        break;
+      }
+      float p = (t - 350) / (float)(reactionMs() - 350);
+      int s = 2 + p * 6;
+      drawHeart(x + side * (40 + p * 70) - 7 * s / 2, top + 10 - p * 50 - 3 * s, s);
+      break;
+    }
+    case REACT_GIGGLE: // little ha-ha sparkles
+      if ((t / 150) % 2) {
+        drawStar(x - side * 58, top + 4, 2, CREAM);
+        drawStar(x + side * 58, top + 14, 2, CREAM);
+      }
+      break;
+    case REACT_DIZZY: // stars circling the head
+      for (int i = 0; i < 3; i++) {
+        float a = t / 200.0f + i * 2 * PI / 3;
+        drawStar(x + cosf(a) * 40, top - 6 + sinf(a) * 6, 2, i ? CREAM : ORANGE);
+      }
+      break;
+  }
+}
+
 void drawEffects(uint32_t now) {
   int top = botTop(bot, U);
   uint32_t inState = now - pet.since;
@@ -205,9 +246,7 @@ void drawEffects(uint32_t now) {
   } else if (pet.state == DONE && inState < 1800) {
     drawConfetti(inState);
   }
-  if (now - pet.tapAt < 900 && pet.state != SLEEP && !talking) {
-    drawHeart((int)bot.x - 10, top - 30 - (now - pet.tapAt) / 40);
-  }
+  drawReaction(now, top);
   drawSpeech(now);
 }
 

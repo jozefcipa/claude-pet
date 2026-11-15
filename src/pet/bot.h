@@ -1,7 +1,7 @@
 #pragma once
 #include "config.h"
 
-enum Eyes { EYES_OPEN, EYES_BLINK, EYES_HAPPY, EYES_CLOSED, EYES_WIDE };
+enum Eyes { EYES_OPEN, EYES_BLINK, EYES_HAPPY, EYES_CLOSED, EYES_WIDE, EYES_DIZZY };
 
 // One frame's pose. Scenes fill it in, drawBot renders it.
 struct Bot {

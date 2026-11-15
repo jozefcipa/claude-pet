@@ -51,10 +51,13 @@ static void lcdRegInit() {
 }
 
 void displayInit() {
+  pinMode(pins::LCD_BL, OUTPUT);
+  displayBacklight(0); // dark until the panel RAM is cleared, otherwise it shows random noise
   gfx->begin();
   lcdRegInit();
   lcd->setRotation(ROTATION); // the init sequence resets MADCTL, so re-apply
-  pinMode(pins::LCD_BL, OUTPUT);
+  gfx->fillScreen(color::BG);
+  gfx->flush();
   displayBacklight(BL_ON);
 }
 

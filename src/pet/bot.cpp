@@ -29,6 +29,12 @@ static void drawEye(int ex, int ey, int u, Eyes eyes) {
       gfx->fillRect(ex, ey + h, u, h, BG);
       gfx->fillRect(ex + u, ey + u, h, h, BG);
       break;
+    case EYES_DIZZY: // x
+      for (int i = 0; i < 3; i++) {
+        gfx->fillRect(ex - h + i * h, ey + i * h, h, h, BG);
+        gfx->fillRect(ex + h - i * h, ey + i * h, h, h, BG);
+      }
+      break;
     case EYES_WIDE:
       gfx->fillRect(ex, ey - h, u, 2 * u + h, BG);
       break;

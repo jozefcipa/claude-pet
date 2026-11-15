@@ -10,6 +10,11 @@ constexpr int STACK_X = W - 30;
 // Little things the bot does on its own while Claude is idle
 enum Antic { ANT_REST, ANT_WANDER, ANT_WAVE, ANT_STRETCH, ANT_DANCE, ANT_NAP, ANT_HOP, ANT_PEEK, ANT_FLY };
 
+// How it reacts to a tap, picked at random; a burst of taps makes it dizzy
+enum Reaction { REACT_HOP, REACT_BLUSH, REACT_KISS, REACT_GIGGLE, REACT_DIZZY };
+constexpr int DIZZY_TAPS = 5;
+constexpr uint32_t TAP_STREAK_MS = 700; // taps closer than this count towards dizzy
+
 // Scene memory that outlives a single frame
 struct Scene {
   float targetX = W / 2;
@@ -20,6 +25,9 @@ struct Scene {
   Antic antic = ANT_REST;
   uint32_t anticStart = 0, anticEnd = 0;
   int anticStep = 0;
+  Reaction reaction = REACT_HOP;
+  int tapStreak = 0;
+  uint32_t lastTap = 0;
 };
 
 extern Bot bot;
@@ -31,7 +39,9 @@ void scenesReset();
 void scenesUpdate(uint32_t now);
 // Pose while there is no Wi-Fi: scanning for a signal, or sitting sadly
 void scenesOffline(uint32_t now, bool searching);
-// A tap wakes it from a nap
+// A tap: picks a reaction and wakes it from a nap
 void scenesPoke(uint32_t now);
+// How long the current tap reaction lasts
+uint32_t reactionMs();
 // Where the fly is during ANT_FLY; false when there is no fly on screen
 bool flyPos(uint32_t now, int &x, int &y);

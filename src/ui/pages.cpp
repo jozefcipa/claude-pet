@@ -3,6 +3,7 @@
 #include "net/net.h"
 #include "pet/props.h"
 #include "pet/scenes.h"
+#include "pet/speech.h"
 #include "pet/state.h"
 #include "usage/usage.h"
 
@@ -48,6 +49,37 @@ void drawPetPage(uint32_t now, NetStatus net) {
   drawPropsFront(now);
   drawEffects(now);
   drawHud();
+}
+
+// The bot gets printed in bottom-up while the ground loads like a progress bar,
+// then opens its eyes and hops hello
+void drawBootPage(uint32_t t) {
+  constexpr uint32_t PRINT_MS = 1100, WAKE_MS = 1500;
+  static bool greeted = false;
+  int fill = min<uint32_t>(t, PRINT_MS) * W / PRINT_MS;
+  for (int x = 0; x < fill; x += 8) {
+    gfx->fillRect(x, GROUND, 4, 1, GRAY_DARK);
+  }
+
+  bot = Bot();
+  bot.eyes = t < WAKE_MS ? EYES_CLOSED : EYES_HAPPY;
+  if (t > WAKE_MS) {
+    uint32_t h = t - WAKE_MS;
+    bot.y = h < 450 ? sinf(PI * h / 450.0f) * 16 : 0;
+    bot.armL = bot.armR = 2;
+    if (!greeted) {
+      greeted = true;
+      say("Hello!", millis());
+    }
+  }
+  drawBot(bot, U);
+
+  if (t < PRINT_MS) { // hide what isn't printed yet, with a bright scan line at the edge
+    int top = botTop(bot, U), scan = GROUND - (GROUND - top) * t / PRINT_MS;
+    gfx->fillRect(0, top, W, scan - top, BG);
+    gfx->fillRect((int)bot.x - 8 * U - 4, scan, 16 * U + 8, 2, CREAM);
+  }
+  drawSpeech(millis());
 }
 
 void drawUsagePage() {

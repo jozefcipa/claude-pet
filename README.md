@@ -24,7 +24,7 @@ A pixel-art desk buddy that acts out what Claude Code is doing. It runs on a sma
 
 Touch:
 
-- **tap**: poke the bot (it hops, a heart pops up), dismiss "needs you", or wake it up
+- **tap**: poke the bot (it hops, blushes, blows you a heart or giggles; poke it 5 times fast and it gets dizzy), dismiss "needs you", or wake it up
 - **long press (2 s)**: turn off now; ignores hooks and taps for 1 h or until the next long press, then back to normal standby
 - **swipe sideways**: switch to the usage page (today's tokens, sessions, last 7 days)
 

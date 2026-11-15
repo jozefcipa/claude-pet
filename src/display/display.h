@@ -13,6 +13,7 @@ constexpr uint16_t GRAY = RGB565(0x80, 0x7D, 0x76);
 constexpr uint16_t GRAY_DARK = RGB565(0x3A, 0x38, 0x35);
 constexpr uint16_t GREEN = RGB565(0x7A, 0xC9, 0x6E);
 constexpr uint16_t RED = RGB565(0xE0, 0x5A, 0x5A);
+constexpr uint16_t PINK = RGB565(0xF2, 0x8C, 0x9E);
 }
 
 void displayInit();

@@ -26,7 +26,23 @@ void scenesReset() {
   startAntic(ANT_REST, 3000, 6000, millis());
 }
 
+uint32_t reactionMs() {
+  static const uint32_t MS[] = { 900, 1500, 1300, 1000, 2000 }; // indexed by Reaction
+  return MS[scene.reaction];
+}
+
 void scenesPoke(uint32_t now) {
+  scene.tapStreak = now - scene.lastTap < TAP_STREAK_MS ? scene.tapStreak + 1 : 1;
+  scene.lastTap = now;
+  if (scene.tapStreak >= DIZZY_TAPS) {
+    scene.reaction = REACT_DIZZY;
+    scene.tapStreak = 0;
+  } else {
+    Reaction prev = scene.reaction;
+    do {
+      scene.reaction = (Reaction)random(REACT_DIZZY); // anything but dizzy, not twice in a row
+    } while (scene.reaction == prev);
+  }
   if (pet.state == IDLE && scene.antic == ANT_NAP) {
     scene.anticEnd = now;
   }
@@ -331,14 +347,36 @@ static void baseline(uint32_t now) {
   bot.eyes = now - blinkStart < 130 ? EYES_BLINK : EYES_OPEN;
 }
 
-// a poke: hop + happy eyes
+// A poke overrides the scene's pose for a moment (hearts, cheeks and stars are in props.cpp)
 static void applyPoke(uint32_t now) {
-  uint32_t sinceTap = now - pet.tapAt;
-  if (sinceTap < 400) {
-    bot.y += sinf(PI * sinceTap / 400.0f) * 12;
+  uint32_t t = now - pet.tapAt;
+  if (t >= reactionMs() || pet.state == SLEEP) {
+    return;
   }
-  if (sinceTap < 900 && pet.state != SLEEP) {
-    bot.eyes = EYES_HAPPY;
+  bot.eyes = EYES_HAPPY;
+  switch (scene.reaction) {
+    case REACT_HOP:
+      if (t < 400) {
+        bot.y += sinf(PI * t / 400.0f) * 12;
+      }
+      break;
+    case REACT_BLUSH: // shy: hands up, looks away
+      bot.armL = bot.armR = 1;
+      bot.lookX = (t / 400) % 2 ? 3 : -3;
+      bot.lookY = 3;
+      break;
+    case REACT_KISS: // hand to mouth, then throws the heart
+      bot.armR = t < 350 ? 1 : 2;
+      break;
+    case REACT_GIGGLE: // shakes with laughter
+      bot.y += (t / 70) % 2 * 3;
+      bot.armL = bot.armR = (t / 140) % 2;
+      break;
+    case REACT_DIZZY:
+      bot.eyes = EYES_DIZZY;
+      bot.lookX = sinf(t / 120.0f) * 3;
+      bot.legs = (t / 300) % 2 + 1; // wobbly
+      break;
   }
 }
 

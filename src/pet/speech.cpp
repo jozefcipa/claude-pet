@@ -17,7 +17,11 @@ static const char *const THINK[] = {
 static const char *const DONE_LINES[] = { "All done!", "Ta-da!", "Finished!", "Your turn!" };
 static const char *const ATTN[] = { "Hey! I need you", "Psst... over here!", "Can you take a look?" };
 static const char *const WAKE[] = { "I'm up!", "Oh hi!", "Back to work?" };
-static const char *const POKE[] = { "Hey!", "Hehe", "That tickles!", "Hi there!" };
+static const char *const POKE[] = { "Hey!", "Hi there!", "Boing!" };
+static const char *const BLUSH[] = { "Aww...", "*blush*", "Stop it, you!" };
+static const char *const KISS[] = { "Mwah!", "Love you!", "For you!" };
+static const char *const GIGGLE[] = { "Hehe", "That tickles!", "Teehee!" };
+static const char *const DIZZY[] = { "Whoa...", "So dizzy...", "Too many pokes!" };
 static const char *const HUM[] = { "*hums*", "...", "Need anything?" };
 static const char *const WAVE[] = { "Hi!", "Hello!", "Hey you!" };
 static const char *const STRETCH[] = { "*stretch*", "Ahh..." };
@@ -96,8 +100,15 @@ void speechOnScene(State prev, uint32_t now) {
 }
 
 void speechOnPoke(uint32_t now) {
-  if (!speaking(now) || pet.state == IDLE) {
-    say(pick(POKE), now);
+  if (speaking(now) && pet.state != IDLE) {
+    return;
+  }
+  switch (scene.reaction) {
+    case REACT_BLUSH: say(pick(BLUSH), now); break;
+    case REACT_KISS: say(pick(KISS), now); break;
+    case REACT_GIGGLE: say(pick(GIGGLE), now); break;
+    case REACT_DIZZY: say(pick(DIZZY), now); break;
+    default: say(pick(POKE), now);
   }
 }
 
