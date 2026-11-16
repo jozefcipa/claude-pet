@@ -9,9 +9,10 @@ enum NetStatus {
 };
 
 // Wi-Fi, mDNS (claude-pet.local), NTP clock and the HTTP API the hooks call:
-//   GET /state?s=<state>&tool=<name>&msg=<text for a speech bubble>
+//   GET /state?s=<state>&tool=<name>&msg=<text for a speech bubble>&sid=<session>&mac=<name>
+//       -> 409 while another session holds the pet (see petEvent)
 //   GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g
-//   GET /say?msg=<text>[&ms=<duration>]  -> speech bubble without changing state
+//   GET /say?msg=<text>[&ms=<duration>][&sid=<session>]  -> speech bubble without changing state
 //   GET /  -> current state name
 void netInit();
 void netLoop();

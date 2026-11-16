@@ -52,18 +52,24 @@ Everything goes over your home Wi-Fi. USB is only for power and flashing.
 3. **Bonjour finds the board.** The firmware announces itself over mDNS as `claude-pet.local`, so the Mac doesn't need to know its IP.
 4. **The ESP32 updates the pet.** A small web server on port 80 sets the new state, and the main loop picks the matching animation on the next frame (~30 fps).
 
-The Mac always starts the conversation and the board only answers. Several Claude sessions share one pet: the latest event wins.
+The Mac always starts the conversation and the board only answers.
+
+### Several sessions and Macs
+
+The pet follows one Claude session at a time. The first session to start working takes it (the hook sends its `session_id` as the lock key), and events from every other session, on this Mac or another, are ignored until that session is done, goes idle, or stays silent for `STALE_WORK_MS`. Tapping away an attention scene also frees it. Then whichever session acts next takes over.
+
+Each Mac sends a short name (picked during `just install`). Once more than one Mac has talked to the pet within `MULTI_MAC_MS`, the name of the one in charge shows in the top left corner, each Mac in its own color.
 
 ### HTTP API
 
 | Request | Sent by | Effect |
 |---|---|---|
-| `GET /state?s=<state>&tool=<name>&msg=<text>` | `scripts/hook.sh` | changes what the pet is doing |
+| `GET /state?s=<state>&tool=<name>&msg=<text>&sid=<session>&mac=<name>` | `scripts/hook.sh` | changes what the pet is doing; `409` while another session holds it |
 | `GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g` | `scripts/usage.sh`, after each reply | updates the token stats |
-| `GET /say?msg=<text>&ms=<duration>` | `scripts/say.sh` | speech bubble only, the state doesn't change |
-| `GET /` | you | returns the current state |
+| `GET /say?msg=<text>&ms=<duration>&sid=<session>` | `scripts/say.sh`, `hook.sh` | speech bubble only, the state doesn't change |
+| `GET /` | you | returns the current state and the Mac in charge |
 
-States: `idle`, `thinking`, `working`, `attention`, `done`, `sleep`, `off`.
+States: `idle`, `thinking`, `working`, `attention`, `done`, `sleep`, `off`. Requests without `sid` (manual `curl`, `just state`) skip the lock.
 
 ```sh
 curl -4 "http://claude-pet.local/state?s=attention&msg=hello"
@@ -98,7 +104,7 @@ just dev   # flash + serial console, prints "ready: http://claude-pet.local (192
 just install
 ```
 
-This adds the hooks to `~/.claude/settings.json` (after backing it up to `settings.json.bak`). Running it again won't duplicate anything, and it keeps any other hooks you have. Start a new Claude session afterwards. `just uninstall-hooks` removes them again.
+It asks for a short name for this Mac (prefilled with the hostname, Enter keeps it, max 10 chars), shown on the pet when several Macs share it. Then it adds the hooks to `~/.claude/settings.json` (after backing it up to `settings.json.bak`). Running it again won't duplicate anything, and it keeps any other hooks you have. Start a new Claude session afterwards. `just uninstall-hooks` removes them again.
 
 <details>
 <summary>Manual hook setup</summary>
@@ -107,13 +113,13 @@ Add this to `~/.claude/settings.json`, adjusting the path to where the repo live
 
 ```json
 "hooks": {
-  "SessionStart":     [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh idle" }] }],
-  "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh thinking" }] }],
-  "PreToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh working" }] }],
-  "PostToolUse": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh thinking" }] }],
-  "Notification": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh attention" }] }],
-  "Stop": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh done" }] }],
-  "SessionEnd": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh idle" }] }]
+  "SessionStart":     [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh idle MyMac" }] }],
+  "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh thinking MyMac" }] }],
+  "PreToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh working MyMac" }] }],
+  "PostToolUse": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh thinking MyMac" }] }],
+  "Notification": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh attention MyMac" }] }],
+  "Stop": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh done MyMac" }] }],
+  "SessionEnd": [{ "hooks": [{ "type": "command", "command": "/path/to/claude-pet/scripts/hook.sh idle MyMac" }] }]
 }
 ```
 
@@ -187,6 +193,8 @@ Most knobs are in `src/config.h`:
 | `HOLD_OFF_MS` | 1 h | how long a long press keeps it off |
 | `NO_WIFI_AFTER_MS` | 20 s | how long "connecting" shows before "no wifi" |
 | `WIFI_RETRY_MS` | 15 s | how often it retries while offline |
+| `STALE_WORK_MS` | 10 min | a busy session silent this long goes idle and lets other sessions take over |
+| `MULTI_MAC_MS` | 1 h | the Mac name tag shows while a second Mac was heard from this recently |
 | `THINK_DEBOUNCE_MS` | 1.5 s | delay before "thinking" after a tool, so back-to-back tools don't flicker |
 | `BL_ON` / `BL_SLEEP` | 255 / 25 | backlight brightness awake / asleep |
 

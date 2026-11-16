@@ -19,7 +19,11 @@ static void handleState() {
     server.send(400, "text/plain", "unknown state\n");
     return;
   }
-  petEvent(s, server.arg("tool").c_str(), server.arg("msg").c_str());
+  if (!petEvent(s, server.arg("tool").c_str(), server.arg("msg").c_str(), server.arg("sid").c_str(),
+                server.arg("mac").c_str())) {
+    server.send(409, "text/plain", String("busy with ") + pet.ownerMac + "\n");
+    return;
+  }
   server.send(200, "text/plain", "ok\n");
 }
 
@@ -28,6 +32,10 @@ static void handleSay() {
   String msg = server.arg("msg");
   if (msg.isEmpty()) {
     server.send(400, "text/plain", "missing msg\n");
+    return;
+  }
+  if (petLocked(server.arg("sid").c_str())) {
+    server.send(409, "text/plain", String("busy with ") + pet.ownerMac + "\n");
     return;
   }
   say(msg.c_str(), millis(), server.arg("ms").toInt());
@@ -55,7 +63,13 @@ void netInit() {
   server.on("/state", handleState);
   server.on("/usage", handleUsage);
   server.on("/say", handleSay);
-  server.on("/", []() { server.send(200, "text/plain", String(stateName(pet.state)) + "\n"); });
+  server.on("/", []() {
+    String body = stateName(pet.state);
+    if (pet.ownerMac[0]) {
+      body += String(" (") + pet.ownerMac + ")";
+    }
+    server.send(200, "text/plain", body + "\n");
+  });
   server.begin();
 }
 

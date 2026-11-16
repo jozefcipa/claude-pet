@@ -59,18 +59,76 @@ static void petSet(State s) {
   pet.since = now;
 }
 
-void petEvent(State s, const char *tool, const char *msg) {
-  if (pet.held) {
+static bool busy(State s) {
+  return s == THINKING || s == WORKING || s == ATTENTION;
+}
+
+bool petLocked(const char *sid) {
+  return sid[0] && pet.owner[0] && strcmp(sid, pet.owner) && busy(pet.state)
+    && millis() - pet.lastEvent < STALE_WORK_MS;
+}
+
+// Macs seen recently; the slot doubles as the name tag color
+struct Mac {
+  char name[sizeof(Pet::ownerMac)];
+  uint32_t at;
+};
+static Mac macs[4];
+
+static void noteMac(const char *name) {
+  if (!name[0]) {
     return;
+  }
+  int slot = -1, oldest = 0;
+  for (int i = 0; i < 4; i++) {
+    if (!strncmp(macs[i].name, name, sizeof(macs[i].name) - 1)) {
+      slot = i;
+    }
+    if (macs[i].at < macs[oldest].at) {
+      oldest = i;
+    }
+  }
+  if (slot < 0) {
+    slot = oldest;
+    strlcpy(macs[slot].name, name, sizeof(macs[slot].name));
+  }
+  macs[slot].at = millis();
+}
+
+int petMacSlot(uint32_t now) {
+  if (!pet.ownerMac[0]) {
+    return -1;
+  }
+  int recent = 0, slot = -1;
+  for (int i = 0; i < 4; i++) {
+    if (macs[i].at && now - macs[i].at < MULTI_MAC_MS) {
+      recent++;
+    }
+    if (!strcmp(macs[i].name, pet.ownerMac)) {
+      slot = i;
+    }
+  }
+  return recent > 1 ? slot : -1;
+}
+
+bool petEvent(State s, const char *tool, const char *msg, const char *sid, const char *mac) {
+  noteMac(mac);
+  if (pet.held || petLocked(sid)) {
+    return false;
+  }
+  if (sid[0]) {
+    strlcpy(pet.owner, busy(s) ? sid : "", sizeof(pet.owner)); // done/idle hands the pet back
+    strlcpy(pet.ownerMac, mac, sizeof(pet.ownerMac));
   }
   if (s == THINKING && pet.state == WORKING) {
     pet.pendingThinkAt = millis() + THINK_DEBOUNCE_MS;
     pet.lastEvent = millis();
-    return;
+    return true;
   }
   strlcpy(pet.tool, tool, sizeof(pet.tool));
   strlcpy(pet.msg, msg, sizeof(pet.msg));
   petSet(s);
+  return true;
 }
 
 void petPoke(uint32_t now) {

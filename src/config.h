@@ -32,6 +32,7 @@ constexpr uint32_t HOLD_OFF_MS = 60 * 60 * 1000;    // long press keeps it off (
 constexpr uint32_t LONG_PRESS_MS = 2000;
 constexpr uint32_t STALE_WORK_MS = 10 * 60 * 1000; // no hook this long while busy -> idle (Esc interrupt skips Stop)
 constexpr uint32_t DONE_MS = 3000;
+constexpr uint32_t MULTI_MAC_MS = 60 * 60 * 1000;  // Mac name tag shows while another Mac was heard from this recently
 constexpr uint32_t BOOT_MS = 2200;                 // boot intro: bot prints in, wakes up, hops
 constexpr uint32_t THINK_DEBOUNCE_MS = 1500;       // PostToolUse -> thinking waits so back-to-back tools don't flicker
 constexpr uint32_t DEMO_STEP_MS = 7000;

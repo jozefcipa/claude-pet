@@ -22,7 +22,7 @@ All tasks go through `just` (run `just` to list them):
 
 ## Architecture
 
-**Data flow:** Claude Code hook -> `scripts/hook.sh <state>` (extracts `tool_name`/`message` with jq, backgrounded `curl` with 1 s timeout, never blocks Claude; on `done` also runs `usage.sh`) -> HTTP on the board (`net/net.cpp`, `WebServer` on port 80, mDNS `claude-pet.local`) -> `petEvent()` in `pet/state.cpp` -> scene picked next frame. The Mac always initiates; the board only answers. Multiple Claude sessions share one pet, last event wins.
+**Data flow:** Claude Code hook -> `scripts/hook.sh <state>` (extracts `tool_name`/`message` with jq, backgrounded `curl` with 1 s timeout, never blocks Claude; on `done` also runs `usage.sh`) -> HTTP on the board (`net/net.cpp`, `WebServer` on port 80, mDNS `claude-pet.local`) -> `petEvent()` in `pet/state.cpp` -> scene picked next frame. The Mac always initiates; the board only answers. One session holds the pet at a time: `session_id` is the lock key, the first busy session wins and others are dropped (409) until it is done/idle or stale (`petLocked()`). `hook.sh <state> <mac name>` also sends a Mac name, shown top left once several Macs are seen.
 
 **Single-threaded loop** (`src/main.cpp`): each `loop()` runs `netLoop()` (which calls `server.handleClient()`, so HTTP handlers run synchronously inside the loop, no locking needed), touch input, `petTick()` timeouts, then redraws at ~30 fps (`FRAME_MS`). `main.cpp` only wires modules together; keep logic in the modules.
 

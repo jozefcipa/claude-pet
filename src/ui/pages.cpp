@@ -9,7 +9,13 @@
 
 using namespace color;
 
-static void drawHud() {
+static void drawHud(uint32_t now) {
+  // Which Mac is in charge, only once more than one is around
+  static constexpr uint16_t MAC_COLORS[4] = { PURPLE, GREEN, BLUE, PINK };
+  int slot = petMacSlot(now);
+  if (slot >= 0) {
+    text(pet.ownerMac, 10, 10, 2, MAC_COLORS[slot]);
+  }
   if (pet.state == IDLE && usage.has) {
     char n[16], buf[24];
     fmtTokens(usage.today, n, sizeof(n));
@@ -48,7 +54,7 @@ void drawPetPage(uint32_t now, NetStatus net) {
   drawBot(bot, U);
   drawPropsFront(now);
   drawEffects(now);
-  drawHud();
+  drawHud(now);
 }
 
 // The bot gets printed in bottom-up while the ground loads like a progress bar,

@@ -19,6 +19,8 @@ struct Pet {
   uint32_t heldAt = 0;
   char tool[24] = "";
   char msg[96] = "";           // what Claude wants to tell you (e.g. the Notification text)
+  char owner[40] = "";         // session_id holding the pet while it's busy; others are ignored until it's done
+  char ownerMac[12] = "";      // name of the Mac that last controlled the pet
 };
 
 extern Pet pet;
@@ -27,7 +29,14 @@ const char *stateName(State s);
 bool parseState(const char *name, State &out);
 
 // A hook event. "thinking" right after a tool is debounced.
-void petEvent(State s, const char *tool, const char *msg = "");
+// sid/mac identify the Claude session and Mac. The first busy session takes the pet;
+// events from other sessions are dropped (returns false) until it is done/idle or goes quiet
+// for STALE_WORK_MS. An empty sid (manual curl) always goes through.
+bool petEvent(State s, const char *tool, const char *msg = "", const char *sid = "", const char *mac = "");
+// true if a session other than sid currently holds the pet
+bool petLocked(const char *sid);
+// Color slot (0-3) of the controlling Mac, or -1 unless several Macs talked within MULTI_MAC_MS
+int petMacSlot(uint32_t now);
 void petPoke(uint32_t now);
 // Long press: force OFF for HOLD_OFF_MS, or wake if already held off
 void petToggleOff(uint32_t now);

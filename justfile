@@ -29,13 +29,21 @@ install: install-hooks
 
 # add the hooks to ~/.claude/settings.json (idempotent, backs the file up first)
 install-hooks:
-    #!/bin/sh
+    #!/usr/bin/env zsh
     set -e
     [ -f "{{ settings }}" ] || echo '{}' > "{{ settings }}"
+    # name shown on the pet when several Macs share it: max 10 chars, no spaces
+    name=$(jq -r '[.. | .command? | strings | capture("hook\\.sh \\w+ (?<n>\\S+)").n][0] // empty' "{{ settings }}")
+    name=${name:-$(hostname -s)}
+    name=${${name//[^A-Za-z0-9_-]/}[1,10]}
+    if [ -t 0 ]; then
+      vared -p 'Name for this Mac on the pet (Enter to keep): ' name
+      name=${${name//[^A-Za-z0-9_-]/}[1,10]}
+    fi
     cp "{{ settings }}" "{{ settings }}.bak"
-    jq --arg h "{{ hook }}" '
+    jq --arg h "{{ hook }}" --arg n "$name" '
       def strip: map(select(any(.hooks[]?; .command | test("(scripts|mac)/hook\\.sh")) | not));
-      def entry($s; $m): (if $m then {matcher: "*"} else {} end) + {hooks: [{type: "command", command: "\($h) \($s)"}]};
+      def entry($s; $m): (if $m then {matcher: "*"} else {} end) + {hooks: [{type: "command", command: "\($h) \($s) \($n)"}]};
       .hooks //= {}
       | reduce (
           ["SessionStart", "idle", false],
@@ -48,7 +56,7 @@ install-hooks:
         ) as [$event, $state, $matcher]
         (.; .hooks[$event] = ((.hooks[$event] // []) | strip) + [entry($state; $matcher)])
     ' "{{ settings }}.bak" > "{{ settings }}"
-    echo "hooks installed (backup: {{ settings }}.bak), start a new Claude session to pick them up"
+    echo "hooks installed as \"$name\" (backup: {{ settings }}.bak), start a new Claude session to pick them up"
 
 # remove the pet hooks from ~/.claude/settings.json, keeping any others
 uninstall-hooks:
