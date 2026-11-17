@@ -68,6 +68,7 @@ Each Mac sends a short name (picked during `just install`). Once more than one M
 | `GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g` | `scripts/usage.sh`, after each reply | updates the token stats |
 | `GET /say?msg=<text>&ms=<duration>&sid=<session>` | `scripts/say.sh`, `hook.sh` | speech bubble only, the state doesn't change |
 | `GET /` | you | returns the current state and the Mac in charge |
+| `POST /update` (multipart `firmware`) | `just flash` | OTA firmware update, then reboot; basic auth `pet:$OTA_PASS` if `OTA_PASS` is set in `secrets.h` |
 
 States: `idle`, `thinking`, `working`, `attention`, `done`, `sleep`, `off`. Requests without `sid` (manual `curl`, `just state`) skip the lock.
 
@@ -140,7 +141,8 @@ just say "hello!"    # speech bubble
 | `just install` | install the hooks (same as `install-hooks`) |
 | `just uninstall-hooks` | remove the pet hooks, keep the rest of your settings |
 | `just build` | compile the firmware |
-| `just flash` | compile and flash over USB |
+| `just flash` | compile and flash over Wi-Fi (OTA) if the pet answers, else USB. Export `OTA_PASS` if you set one |
+| `just flash-usb` | compile and flash over USB (first flash, or when Wi-Fi is broken) |
 | `just monitor` | serial console |
 | `just dev` | flash, then serial console |
 | `just clean` | delete build output |

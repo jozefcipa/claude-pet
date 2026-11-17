@@ -74,8 +74,22 @@ uninstall-hooks:
 build:
     {{ pio }} run
 
-# compile and flash over USB
+# compile and flash: over Wi-Fi if the pet answers, else USB (OTA_PASS env if set in secrets.h)
 flash:
+    #!/bin/sh
+    set -e
+    if curl -4 -sf -m 2 -o /dev/null "http://{{ host }}/"; then
+      {{ pio }} run
+      echo "flashing over Wi-Fi ({{ host }})..."
+      curl -4 -sf -m 120 -u "pet:${OTA_PASS:-}" -F "firmware=@.pio/build/pet/firmware.bin" "http://{{ host }}/update" >/dev/null
+      echo "done, pet is rebooting"
+    else
+      echo "pet not reachable at {{ host }}, flashing over USB"
+      {{ pio }} run -t upload
+    fi
+
+# compile and flash over USB (first flash, or when Wi-Fi is broken)
+flash-usb:
     {{ pio }} run -t upload
 
 # serial console (Ctrl+C to quit)

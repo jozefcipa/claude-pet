@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <WebServer.h>
+#include <HTTPUpdateServer.h>
 #include <ESPmDNS.h>
 #include <time.h>
 #include "net/net.h"
@@ -9,7 +10,12 @@
 #include "usage/usage.h"
 #include "secrets.h"
 
+#ifndef OTA_PASS // older secrets.h
+#define OTA_PASS ""
+#endif
+
 static WebServer server(80);
+static HTTPUpdateServer updater;
 static uint32_t offlineSince = 0;
 static uint32_t lastAttempt = 0;
 
@@ -70,6 +76,7 @@ void netInit() {
     }
     server.send(200, "text/plain", body + "\n");
   });
+  updater.setup(&server, "/update", "pet", OTA_PASS); // empty OTA_PASS = no auth
   server.begin();
 }
 
