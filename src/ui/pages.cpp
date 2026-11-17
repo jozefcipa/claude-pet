@@ -17,9 +17,8 @@ static void drawHud(uint32_t now) {
     text(pet.ownerMac, 10, 10, 2, MAC_COLORS[slot]);
   }
   if (pet.state == IDLE && usage.has) {
-    char n[16], buf[24];
-    fmtTokens(usage.today, n, sizeof(n));
-    snprintf(buf, sizeof(buf), "%s tokens", n);
+    char buf[24];
+    snprintf(buf, sizeof(buf), "%d%% used", usagePct(usage.session));
     text(buf, W - 8 - textW(buf, 1), H - 11, 1, GRAY);
   }
   if (pet.state == WORKING && pet.tool[0]) {
@@ -88,30 +87,44 @@ void drawBootPage(uint32_t t) {
   drawSpeech(millis());
 }
 
+// Card with a big percentage, a label pill, a progress bar and the reset countdown
+static void drawLimit(const Limit &l, const char *label, int y, uint16_t fill) {
+  constexpr uint16_t CARD = RGB565(0x1E, 0x1D, 0x20);
+  const int x = 8, w = W - 16, h = 74, pad = 10;
+  gfx->fillRoundRect(x, y, w, h, 8, CARD);
+
+  int pct = usagePct(l);
+  char buf[24];
+  snprintf(buf, sizeof(buf), "%d%%", pct);
+  text(buf, x + pad, y + 7, 3, CREAM);
+
+  int pillW = textW(label, 2) + 16;
+  gfx->fillRoundRect(x + w - pad - pillW, y + 8, pillW, 22, 11, GRAY_DARK);
+  text(label, x + w - pad - pillW + 8, y + 12, 2, CREAM);
+
+  const int barW = w - 2 * pad;
+  gfx->fillRoundRect(x + pad, y + 36, barW, 10, 5, GRAY_DARK);
+  if (pct > 0) {
+    gfx->fillRoundRect(x + pad, y + 36, max(10, barW * pct / 100), 10, 5, pct >= 90 ? RED : fill);
+  }
+
+  uint32_t left = usageResetIn(l);
+  if (left) {
+    char d[16];
+    fmtDuration(left, d, sizeof(d));
+    snprintf(buf, sizeof(buf), "Resets in %s", d);
+  } else {
+    strlcpy(buf, "Fresh window", sizeof(buf));
+  }
+  text(buf, x + pad, y + 53, 2, GRAY);
+}
+
 void drawUsagePage() {
-  const int leftX = 80, rightX = 244;
-  centerText("today", leftX, 26, 2, GRAY);
   if (!usage.has) {
     centerText("no data yet", W / 2, 76, 1, GRAY);
     centerText("finish a Claude turn", W / 2, 92, 1, GRAY);
     return;
   }
-  char buf[32];
-  fmtTokens(usage.today, buf, sizeof(buf));
-  centerText(buf, leftX, 58, 4, ORANGE);
-  centerText("tokens", leftX, 96, 2, CREAM);
-  snprintf(buf, sizeof(buf), "%d session%s", usage.sessions, usage.sessions == 1 ? "" : "s");
-  centerText(buf, leftX, 124, 1, GRAY);
-
-  uint64_t peak = 1;
-  for (uint64_t v : usage.week) {
-    peak = v > peak ? v : peak;
-  }
-  const int base = 146, maxH = 116, bw = 18, gap = 4;
-  int x0 = rightX - (7 * bw + 6 * gap) / 2;
-  for (int i = 0; i < 7; i++) {
-    int h = max(2, (int)(usage.week[i] * maxH / peak));
-    gfx->fillRect(x0 + i * (bw + gap), base - h, bw, h, i == 6 ? ORANGE : GRAY);
-  }
-  centerText("last 7 days", rightX, 156, 1, GRAY);
+  drawLimit(usage.session, "Current", 8, ORANGE);
+  drawLimit(usage.week, "Weekly", 90, GREEN);
 }

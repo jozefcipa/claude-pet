@@ -11,18 +11,17 @@ Firmware for a pixel-art desk pet on a Waveshare ESP32-C6-Touch-LCD-1.47 (Arduin
 All tasks go through `just` (run `just` to list them):
 
 - `just build` - compile firmware (`pio run`); this is the only "test" for C++ changes, there is no test suite or linter
-- `just flash` / `just dev` - flash over USB / flash then serial monitor
+- `just flash` / `just flash-usb` / `just dev` - flash over Wi-Fi (OTA, falls back to USB) / over USB / flash then serial monitor
 - `just state <name> ["msg"] ["tool"]` - drive the pet by hand, e.g. `just state working "" Bash`
 - `just tour` - cycle every state, 5 s each (visual check of all scenes)
 - `just say "msg" [ms]`, `just status`
-- `just usage-dry` - run `scripts/usage.sh` without sending
 - `just install` / `just uninstall-hooks` - edit `~/.claude/settings.json` hooks via `jq` (idempotent, backs up first)
 
 `src/secrets.h` (gitignored, from `secrets.example.h` via `just setup`) must exist to build. Empty `WIFI_SSID` = demo mode (`pet/demo.*` cycles scenes). Set `CLAUDE_PET_HOST` to target an IP instead of `claude-pet.local`. Always use `curl -4` against the board (macOS IPv6 mDNS lookup hangs ~5 s otherwise).
 
 ## Architecture
 
-**Data flow:** Claude Code hook -> `scripts/hook.sh <state>` (extracts `tool_name`/`message` with jq, backgrounded `curl` with 1 s timeout, never blocks Claude; on `done` also runs `usage.sh`) -> HTTP on the board (`net/net.cpp`, `WebServer` on port 80, mDNS `claude-pet.local`) -> `petEvent()` in `pet/state.cpp` -> scene picked next frame. The Mac always initiates; the board only answers. One session holds the pet at a time: `session_id` is the lock key, the first busy session wins and others are dropped (409) until it is done/idle or stale (`petLocked()`). `hook.sh <state> <mac name>` also sends a Mac name, shown top left once several Macs are seen.
+**Data flow:** Claude Code hook -> `scripts/hook.sh <state>` (extracts `tool_name`/`message` with jq, backgrounded `curl` with 1 s timeout, never blocks Claude) -> HTTP on the board (`net/net.cpp`, `WebServer` on port 80, mDNS `claude-pet.local`) -> `petEvent()` in `pet/state.cpp` -> scene picked next frame. The Mac always initiates; the board only answers. One session holds the pet at a time: `session_id` is the lock key, the first busy session wins and others are dropped (409) until it is done/idle or stale (`petLocked()`). `hook.sh <state> <mac name>` also sends a Mac name, shown top left once several Macs are seen. Plan limits come separately: `scripts/statusline.sh` is installed as the Claude Code status line (only if none is set) and forwards `rate_limits` to `/usage`; hooks don't receive that data.
 
 **Single-threaded loop** (`src/main.cpp`): each `loop()` runs `netLoop()` (which calls `server.handleClient()`, so HTTP handlers run synchronously inside the loop, no locking needed), touch input, `petTick()` timeouts, then redraws at ~30 fps (`FRAME_MS`). `main.cpp` only wires modules together; keep logic in the modules.
 

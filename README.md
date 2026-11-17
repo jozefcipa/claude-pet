@@ -26,7 +26,7 @@ Touch:
 
 - **tap**: poke the bot (it hops, blushes, blows you a heart or giggles; poke it 5 times fast and it gets dizzy), dismiss "needs you", or wake it up
 - **long press (2 s)**: turn off now; ignores hooks and taps for 1 h or until the next long press, then back to normal standby
-- **swipe sideways**: switch to the usage page (today's tokens, sessions, last 7 days)
+- **swipe sideways**: switch to the usage page (5-hour and weekly plan limits with reset countdowns)
 
 The bot also talks in speech bubbles. Claude's own messages (like a permission request) take priority, otherwise it picks a short line that fits what it's doing. Claude Code's spinner word ("Scampering...") isn't passed to hooks, so while thinking the pet picks from its own list of similar words.
 
@@ -65,7 +65,7 @@ Each Mac sends a short name (picked during `just install`). Once more than one M
 | Request | Sent by | Effect |
 |---|---|---|
 | `GET /state?s=<state>&tool=<name>&msg=<text>&sid=<session>&mac=<name>` | `scripts/hook.sh` | changes what the pet is doing; `409` while another session holds it |
-| `GET /usage?today=N&sessions=N&week=a,b,c,d,e,f,g` | `scripts/usage.sh`, after each reply | updates the token stats |
+| `GET /usage?s=<pct>&sr=<secs>&w=<pct>&wr=<secs>` | `scripts/statusline.sh`, after each reply | 5-hour (`s`) and weekly (`w`) limit used, seconds until each resets |
 | `GET /say?msg=<text>&ms=<duration>&sid=<session>` | `scripts/say.sh`, `hook.sh` | speech bubble only, the state doesn't change |
 | `GET /` | you | returns the current state and the Mac in charge |
 | `POST /update` (multipart `firmware`) | `just flash` | OTA firmware update, then reboot; basic auth `pet:$OTA_PASS` if `OTA_PASS` is set in `secrets.h` |
@@ -150,7 +150,6 @@ just say "hello!"    # speech bubble
 | `just state <name> ["msg"] ["tool"]` | set a state, e.g. `just state working "" Bash` |
 | `just status` | current state, or "not reachable" |
 | `just tour` | every state in a row |
-| `just usage` / `just usage-dry` | push today's tokens now / just print them |
 
 Set `CLAUDE_PET_HOST` to use an IP instead of `claude-pet.local`.
 
@@ -172,11 +171,11 @@ src/
   ui/pages.*        pet page, usage page
   input/touch.*     tap and swipe detection
   net/net.*         Wi-Fi, mDNS, HTTP API
-  usage/usage.*     token stats and formatting
+  usage/usage.*     plan limits and reset countdown
 lib/axs5106l/       touch driver from the Waveshare demo
 scripts/
   hook.sh           Claude Code hook -> /state
-  usage.sh          sums today's tokens from ~/.claude/projects -> /usage
+  statusline.sh     Claude Code status line, pushes plan limits -> /usage
   say.sh            speech bubble from the terminal -> /say
 docs/flow.svg       the diagram above
 justfile            setup, build, flash and test commands

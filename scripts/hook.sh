@@ -36,7 +36,4 @@ fi
 curl -4 -s -m 1 -G "http://$HOST/state" \
   --data-urlencode "s=$state" --data-urlencode "tool=$tool" --data-urlencode "msg=$msg" \
   --data-urlencode "sid=$sid" --data-urlencode "mac=$mac" >/dev/null 2>&1 &
-if [ "$state" = done ]; then
-  "$(dirname "$0")/usage.sh" >/dev/null 2>&1 &
-fi
 exit 0

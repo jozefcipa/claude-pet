@@ -3,6 +3,7 @@
 pio := `command -v pio || echo "$HOME/.platformio/penv/bin/pio"`
 host := env("CLAUDE_PET_HOST", "claude-pet.local")
 hook := justfile_directory() / "scripts/hook.sh"
+statusline := justfile_directory() / "scripts/statusline.sh"
 settings := env("HOME") / ".claude/settings.json"
 
 # list recipes
@@ -41,7 +42,7 @@ install-hooks:
       name=${${name//[^A-Za-z0-9_-]/}[1,10]}
     fi
     cp "{{ settings }}" "{{ settings }}.bak"
-    jq --arg h "{{ hook }}" --arg n "$name" '
+    jq --arg h "{{ hook }}" --arg n "$name" --arg sl "{{ statusline }}" '
       def strip: map(select(any(.hooks[]?; .command | test("(scripts|mac)/hook\\.sh")) | not));
       def entry($s; $m): (if $m then {matcher: "*"} else {} end) + {hooks: [{type: "command", command: "\($h) \($s) \($n)"}]};
       .hooks //= {}
@@ -55,7 +56,11 @@ install-hooks:
           ["SessionEnd", "idle", false]
         ) as [$event, $state, $matcher]
         (.; .hooks[$event] = ((.hooks[$event] // []) | strip) + [entry($state; $matcher)])
+      | .statusLine //= {type: "command", command: $sl}
     ' "{{ settings }}.bak" > "{{ settings }}"
+    if ! jq -e --arg sl "{{ statusline }}" '.statusLine.command == $sl' "{{ settings }}" >/dev/null; then
+      echo "you already have a status line, so usage limits won't reach the pet. Pipe its input to {{ statusline }} to fix that"
+    fi
     echo "hooks installed as \"$name\" (backup: {{ settings }}.bak), start a new Claude session to pick them up"
 
 # remove the pet hooks from ~/.claude/settings.json, keeping any others
@@ -66,6 +71,7 @@ uninstall-hooks:
     jq '
       def strip: map(select(any(.hooks[]?; .command | test("(scripts|mac)/hook\\.sh")) | not));
       if .hooks then .hooks |= (map_values(strip) | with_entries(select(.value | length > 0))) else . end
+      | if (.statusLine.command // "" | test("scripts/statusline\\.sh")) then del(.statusLine) else . end
       | if .hooks == {} then del(.hooks) else . end
     ' "{{ settings }}.bak" > "{{ settings }}"
     echo "hooks removed (backup: {{ settings }}.bak)"
@@ -115,14 +121,6 @@ state name msg="" tool="":
 # what the pet is doing right now
 status:
     @curl -4 -sf -m 2 "http://{{ host }}/" || echo "pet not reachable at {{ host }}"
-
-# push today's token usage to the pet now
-usage:
-    scripts/usage.sh
-
-# print the usage numbers without sending them
-usage-dry:
-    scripts/usage.sh --dry
 
 # walk the pet through every state, 5s each
 tour:

@@ -1,29 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <Arduino.h>
 #include "usage/usage.h"
 
 Usage usage;
 
-void usageSetWeek(const char *csv) {
-  const char *p = csv;
-  for (int i = 0; i < 7; i++) {
-    char *end;
-    usage.week[i] = strtoull(p, &end, 10);
-    if (*end != ',') {
-      break;
-    }
-    p = end + 1;
-  }
+static uint32_t nowSecs() {
+  return millis() / 1000;
 }
 
-void fmtTokens(uint64_t n, char *out, size_t len) {
-  if (n < 1000) {
-    snprintf(out, len, "%llu", n);
-  } else if (n < 1000000) {
-    snprintf(out, len, "%.1fk", n / 1e3);
-  } else if (n < 1000000000) {
-    snprintf(out, len, "%.1fM", n / 1e6);
+void usageSet(Limit &l, int pct, uint32_t resetIn) {
+  l.pct = constrain(pct, 0, 100);
+  l.resetAt = nowSecs() + resetIn;
+}
+
+uint32_t usageResetIn(const Limit &l) {
+  int32_t left = (int32_t)(l.resetAt - nowSecs());
+  return left > 0 ? left : 0;
+}
+
+int usagePct(const Limit &l) {
+  return usageResetIn(l) ? l.pct : 0;
+}
+
+void fmtDuration(uint32_t secs, char *out, size_t len) {
+  uint32_t m = secs / 60, h = m / 60, d = h / 24;
+  if (d) {
+    snprintf(out, len, "%lud %luh", d, h % 24);
+  } else if (h) {
+    snprintf(out, len, "%luh %lum", h, m % 60);
   } else {
-    snprintf(out, len, "%.2fB", n / 1e9);
+    snprintf(out, len, "%lum", max<uint32_t>(m, 1));
   }
 }

@@ -49,9 +49,8 @@ static void handleSay() {
 }
 
 static void handleUsage() {
-  usage.today = strtoull(server.arg("today").c_str(), nullptr, 10);
-  usage.sessions = server.arg("sessions").toInt();
-  usageSetWeek(server.arg("week").c_str());
+  usageSet(usage.session, server.arg("s").toInt(), server.arg("sr").toInt());
+  usageSet(usage.week, server.arg("w").toInt(), server.arg("wr").toInt());
   usage.has = true;
   server.send(200, "text/plain", "ok\n");
 }
