@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 712" width="1200" height="712" role="img" aria-labelledby="t d">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 70 1200 642" width="1200" height="642" role="img" aria-labelledby="t d">
   <title id="t">claude-pet: how Claude Code drives the desk pet</title>
   <desc id="d">Claude Code on the Mac fires hooks, a shell script sends HTTP requests over Wi-Fi to the ESP32 board, which animates a pixel bot on its display. The board announces itself via mDNS so the Mac can find it as claude-pet.local.</desc>
 
@@ -30,9 +30,7 @@
   </defs>
 
   <!-- background -->
-  <rect width="1200" height="712" rx="18" fill="#f5f4ef"/>
-  <text x="40" y="52" class="sans h" font-size="26">claude-pet</text>
-  <text x="40" y="76" class="sans g" font-size="14">How Claude Code drives the desk pet</text>
+  <rect y="70" width="1200" height="642" rx="18" fill="#f5f4ef"/>
 
   <!-- ================= MAC ================= -->
   <g>
