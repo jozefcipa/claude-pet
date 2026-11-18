@@ -14,7 +14,7 @@ All tasks go through `just` (run `just` to list them):
 - `just flash` / `just flash-usb` / `just dev` - flash over Wi-Fi (OTA, falls back to USB) / over USB / flash then serial monitor
 - `just state <name> ["msg"] ["tool"]` - drive the pet by hand, e.g. `just state working "" Bash`
 - `just tour` - cycle every state, 5 s each (visual check of all scenes)
-- `just say "msg" [ms]`, `just status`
+- `just status`
 - `just install` / `just uninstall-hooks` - edit `~/.claude/settings.json` hooks via `jq` (idempotent, backs up first)
 
 `src/secrets.h` (gitignored, from `secrets.example.h` via `just setup`) must exist to build. Empty `WIFI_SSID` = demo mode (`pet/demo.*` cycles scenes). Set `CLAUDE_PET_HOST` to target an IP instead of `claude-pet.local`. Always use `curl -4` against the board (macOS IPv6 mDNS lookup hangs ~5 s otherwise).

@@ -66,7 +66,7 @@ Each Mac sends a short name (picked during `just install`). Once more than one M
 |---|---|---|
 | `GET /state?s=<state>&tool=<name>&msg=<text>&sid=<session>&mac=<name>` | `scripts/hook.sh` | changes what the pet is doing; `409` while another session holds it |
 | `GET /usage?s=<pct>&sr=<secs>&w=<pct>&wr=<secs>` | `scripts/statusline.sh`, after each reply | 5-hour (`s`) and weekly (`w`) limit used, seconds until each resets |
-| `GET /say?msg=<text>&ms=<duration>&sid=<session>` | `scripts/say.sh`, `hook.sh` | speech bubble only, the state doesn't change |
+| `GET /say?msg=<text>&ms=<duration>&sid=<session>` | `scripts/hook.sh` (`idle_prompt` notification) | speech bubble only, the state doesn't change |
 | `GET /` | you | returns the current state and the Mac in charge |
 | `POST /update` (multipart `firmware`) | `just flash` | OTA firmware update, then reboot; basic auth `pet:$OTA_PASS` if `OTA_PASS` is set in `secrets.h` |
 
@@ -130,7 +130,6 @@ Add this to `~/.claude/settings.json`, adjusting the path to where the repo live
 
 ```sh
 just tour            # walks the pet through every state, 5s each
-just say "hello!"    # speech bubble
 ```
 
 ## Commands
@@ -146,7 +145,6 @@ just say "hello!"    # speech bubble
 | `just monitor` | serial console |
 | `just dev` | flash, then serial console |
 | `just clean` | delete build output |
-| `just say "msg" [ms]` | speech bubble, optional duration |
 | `just state <name> ["msg"] ["tool"]` | set a state, e.g. `just state working "" Bash` |
 | `just status` | current state, or "not reachable" |
 | `just tour` | every state in a row |
@@ -176,7 +174,6 @@ lib/axs5106l/       touch driver from the Waveshare demo
 scripts/
   hook.sh           Claude Code hook -> /state
   statusline.sh     Claude Code status line, pushes plan limits -> /usage
-  say.sh            speech bubble from the terminal -> /say
 docs/flow.svg       the diagram above
 justfile            setup, build, flash and test commands
 ```

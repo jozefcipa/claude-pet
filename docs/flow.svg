@@ -9,6 +9,9 @@
     <marker id="aho" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#d97757"/>
     </marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7fc1f0"/>
+    </marker>
     <style>
       .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
       .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
@@ -20,6 +23,8 @@
       .chip { fill: #f6f5f1; stroke: #e2e0d9; stroke-width: 1; }
       .flow { stroke: #8a877f; stroke-width: 1.5; fill: none; }
       .http { stroke: #d97757; stroke-width: 2.5; fill: none; }
+      .ota { stroke: #7fc1f0; stroke-width: 2.5; fill: none; stroke-dasharray: 0.1 6; stroke-linecap: round; }
+      .b { fill: #3d8fd1; }
       .mdns { stroke: #8a877f; stroke-width: 1.5; fill: none; stroke-dasharray: 5 5; }
     </style>
   </defs>
@@ -40,14 +45,12 @@
 
     <!-- Claude Code -->
     <rect x="55" y="150" width="420" height="70" rx="10" fill="#fff6f1" stroke="#d97757" stroke-width="1.5"/>
-    <g transform="translate(86,185)" fill="#d97757">
-      <path d="M-2.5,0 L0,-15 L2.5,0 z"/><path d="M-2.5,0 L0,15 L2.5,0 z"/>
-      <path d="M0,-2.5 L-15,0 L0,2.5 z"/><path d="M0,-2.5 L15,0 L0,2.5 z"/>
-      <g transform="rotate(45)"><path d="M-2,0 L0,-10 L2,0 z"/><path d="M-2,0 L0,10 L2,0 z"/><path d="M0,-2 L-10,0 L0,2 z"/><path d="M0,-2 L10,0 L0,2 z"/></g>
-      <circle r="3"/>
+    <g transform="translate(86,185)">
+      <rect x="-17" y="-17" width="34" height="34" rx="8" fill="#d97757"/>
+      <g stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"><line x1="3.0" y1="0.4" x2="12.4" y2="1.9"/><line x1="2.3" y1="1.9" x2="8.6" y2="6.9"/><line x1="1.1" y1="2.8" x2="4.6" y2="11.6"/><line x1="-0.4" y1="3.0" x2="-1.6" y2="10.9"/><line x1="-1.9" y1="2.3" x2="-7.8" y2="9.8"/><line x1="-2.8" y1="1.1" x2="-10.2" y2="4.0"/><line x1="-3.0" y1="-0.4" x2="-12.4" y2="-1.9"/><line x1="-2.3" y1="-1.9" x2="-8.6" y2="-6.9"/><line x1="-1.1" y1="-2.8" x2="-4.6" y2="-11.6"/><line x1="0.4" y1="-3.0" x2="1.6" y2="-10.9"/><line x1="1.9" y1="-2.3" x2="7.8" y2="-9.8"/><line x1="2.8" y1="-1.1" x2="10.2" y2="-4.0"/></g>
     </g>
     <text x="112" y="181" class="sans h" font-size="17">Claude Code</text>
-    <text x="112" y="202" class="sans g" font-size="12">your session in the terminal: prompts, tool calls, permission requests</text>
+    <text x="112" y="202" class="sans g" font-size="12">your terminal session: prompts, tools, permissions</text>
 
     <line x1="265" y1="221" x2="265" y2="246" class="flow" marker-end="url(#ah)"/>
     <text x="276" y="238" class="sans g" font-size="11">fires lifecycle events</text>
@@ -68,7 +71,7 @@
       <rect x="208" y="322" width="123" height="34" rx="6" class="chip"/>
       <text x="218" y="336" class="t">Notification</text><text x="218" y="349" class="o" font-size="10">→ attention + msg</text>
       <rect x="341" y="322" width="123" height="34" rx="6" class="chip"/>
-      <text x="351" y="336" class="t">Stop</text><text x="351" y="349" class="o" font-size="10">→ done + usage</text>
+      <text x="351" y="336" class="t">Stop</text><text x="351" y="349" class="o" font-size="10">→ done</text>
     </g>
 
     <line x1="265" y1="363" x2="265" y2="388" class="flow" marker-end="url(#ah)"/>
@@ -77,39 +80,34 @@
     <!-- Scripts -->
     <rect x="55" y="392" width="420" height="118" rx="10" class="box"/>
     <text x="75" y="415" class="sans h" font-size="15">Scripts</text>
-    <text x="134" y="415" class="mono g" font-size="12">scripts/, skills/</text>
+    <text x="134" y="415" class="mono g" font-size="12">scripts/, justfile</text>
     <g class="sans" font-size="10.5">
-      <rect x="75" y="425" width="123" height="74" rx="6" class="chip"/>
+      <rect x="75" y="425" width="189" height="74" rx="6" class="chip"/>
       <text x="85" y="443" class="mono h" font-size="12">hook.sh</text>
       <text x="85" y="460" class="g">jq + curl -4</text>
       <text x="85" y="474" class="g">runs in background</text>
       <text x="85" y="488" class="g">1s timeout</text>
-      <rect x="208" y="425" width="123" height="74" rx="6" class="chip"/>
-      <text x="218" y="443" class="mono h" font-size="12">usage.sh</text>
-      <text x="218" y="460" class="g">runs on Stop</text>
-      <text x="218" y="474" class="g">sums today's tokens</text>
-      <text x="218" y="488" class="g">from transcripts</text>
-      <rect x="341" y="425" width="123" height="74" rx="6" class="chip"/>
-      <text x="351" y="443" class="mono h" font-size="12">/pet-say</text>
-      <text x="351" y="460" class="g">skill + say.sh</text>
-      <text x="351" y="474" class="g">speech bubble only</text>
-      <text x="351" y="488" class="g">exits 1 if offline</text>
+      <rect x="275" y="425" width="189" height="74" rx="6" class="chip"/>
+      <text x="285" y="443" class="mono h" font-size="12">statusline.sh</text>
+      <text x="285" y="460" class="g">Claude Code status line</text>
+      <text x="285" y="474" class="g">forwards plan limits</text>
+      <text x="285" y="488" class="g">to /usage</text>
     </g>
 
-    <line x1="265" y1="511" x2="265" y2="536" class="flow" marker-end="url(#ah)"/>
-    <text x="276" y="528" class="sans g" font-size="11">looks up claude-pet.local</text>
+    <line x1="265" y1="511" x2="265" y2="540" class="flow"/>
+    <text x="276" y="528" class="sans g" font-size="11">calls the API endpoint</text>
 
     <!-- Bonjour -->
-    <rect x="55" y="540" width="420" height="130" rx="10" class="box"/>
+    <rect x="55" y="540" width="420" height="130" rx="10" fill="#f3f2ed" stroke="#a9a69e" stroke-width="1.2" stroke-dasharray="6 4"/>
+    <path d="M265,540 V575 H501" class="mdns"/>
     <text x="75" y="565" class="sans h" font-size="15">Bonjour (mDNS)</text>
     <text x="75" y="592" class="mono o" font-size="14">claude-pet.local → 192.168.x.x</text>
     <text x="75" y="616" class="sans g" font-size="12">macOS resolves the name the pet announces on the LAN,</text>
     <text x="75" y="633" class="sans g" font-size="12">so the router can hand it any IP.</text>
-    <text x="75" y="656" class="sans g" font-size="11">IPv4 only (curl -4): the ESP never answers IPv6 lookups.</text>
   </g>
 
   <!-- ================= WI-FI ROUTER ================= -->
-  <g>
+  <g transform="translate(0,133)">
     <g fill="none" stroke="#6b6964" stroke-width="2" stroke-linecap="round" opacity="0.8">
       <path d="M632,394 a8,8 0 0 1 16,0"/>
       <path d="M624,394 a16,16 0 0 1 32,0" opacity="0.7"/>
@@ -127,17 +125,27 @@
   </g>
 
   <!-- HTTP: Mac -> router -> ESP -->
-  <line x1="476" y1="450" x2="598" y2="450" class="http" marker-end="url(#aho)"/>
-  <text x="537" y="441" class="sans o" font-size="12" font-weight="600" text-anchor="middle">HTTP GET</text>
-  <line x1="682" y1="450" x2="798" y2="450" class="http" marker-end="url(#aho)"/>
-  <text x="740" y="441" class="sans g" font-size="11" text-anchor="middle">port 80</text>
+  <line x1="501" y1="575" x2="600" y2="575" class="http"/>
+  <text x="550" y="566" class="sans o" font-size="12" font-weight="600" text-anchor="middle">HTTP API</text>
+  <line x1="682" y1="575" x2="778" y2="575" class="http" marker-end="url(#aho)"/>
+  <g class="mono g" font-size="10.5">
+    <text x="692" y="524">GET /</text>
+    <text x="692" y="538">GET /state</text>
+    <text x="692" y="552">GET /usage</text>
+    <text x="692" y="566">GET /say</text>
+  </g>
+  <!-- OTA: just flash -> POST /update -->
+  <line x1="501" y1="592" x2="600" y2="592" class="ota"/>
+  <text x="550" y="609" class="sans b" font-size="12" font-weight="600" text-anchor="middle">OTA update</text>
+  <line x1="682" y1="592" x2="778" y2="592" class="ota" marker-end="url(#ahb)"/>
+  <text x="730" y="609" class="mono b" font-size="10.5" text-anchor="middle">POST /update</text>
 
   <!-- mDNS: ESP announces -> Bonjour -->
-  <path d="M800,466 H760 V532 H556 V600 H478" class="mdns" marker-end="url(#ah)"/>
-  <text x="660" y="550" class="sans g" font-size="11" text-anchor="middle">mDNS: "I'm claude-pet.local"</text>
+  <line x1="778" y1="664" x2="501" y2="664" class="mdns" marker-end="url(#ah)"/>
+  <text x="640" y="681" class="sans g" font-size="11" text-anchor="middle">mDNS: "I'm claude-pet.local"</text>
 
   <!-- ================= ESP32 BOARD ================= -->
-  <g>
+  <g transform="translate(975,110) scale(0.7) translate(-975,-110)">
     <!-- USB-C -->
     <rect x="788" y="196" width="16" height="42" rx="5" fill="#9a9aa2"/>
     <rect x="792" y="203" width="6" height="28" rx="3" fill="#3a3a40"/>
@@ -178,22 +186,20 @@
       <rect x="136" y="84" width="4" height="4" fill="#f0eee6"/>
       <text x="138" y="70" class="mono" font-size="16" font-weight="700" fill="#0b0b0d" text-anchor="middle">On it!</text>
     </g>
-
-    <text x="975" y="345" class="sans h" font-size="13" text-anchor="middle">Waveshare ESP32-C6-Touch-LCD-1.47</text>
-    <text x="975" y="362" class="sans g" font-size="11" text-anchor="middle">1.47" IPS touch display, 320×172, Wi-Fi 6, USB-C power</text>
   </g>
+  <text x="975" y="282" class="sans h" font-size="13" text-anchor="middle">Waveshare ESP32-C6-Touch-LCD-1.47</text>
+  <text x="975" y="299" class="sans g" font-size="11" text-anchor="middle">1.47" IPS touch display, 320×172, Wi-Fi 6, USB-C power</text>
 
   <!-- ================= FIRMWARE ================= -->
   <g>
     <rect x="780" y="392" width="390" height="298" rx="14" fill="#fbfaf7" stroke="#dedcd5"/>
     <text x="800" y="416" class="sans h" font-size="15">Firmware</text>
-    <text x="876" y="416" class="mono g" font-size="12">src/</text>
 
     <!-- main column -->
     <rect x="800" y="430" width="220" height="48" rx="8" class="box"/>
     <text x="812" y="450" class="mono o" font-size="12" font-weight="700">net/</text>
     <text x="848" y="450" class="sans g" font-size="11">web server, mDNS</text>
-    <text x="812" y="468" class="mono t" font-size="10.5">/state  /usage  /say</text>
+    <text x="812" y="468" class="mono t" font-size="10.5">port 80, OTA updater</text>
 
     <line x1="910" y1="479" x2="910" y2="494" class="flow" marker-end="url(#ah)"/>
     <rect x="800" y="498" width="220" height="44" rx="8" class="box"/>
@@ -215,7 +221,7 @@
     <!-- side column -->
     <rect x="1036" y="430" width="118" height="48" rx="8" class="box"/>
     <text x="1048" y="450" class="mono o" font-size="12" font-weight="700">usage/</text>
-    <text x="1048" y="468" class="sans t" font-size="10.5">token stats page</text>
+    <text x="1048" y="468" class="sans t" font-size="10.5">plan limits page</text>
     <line x1="1021" y1="454" x2="1034" y2="454" class="flow" marker-end="url(#ah)"/>
 
     <rect x="1036" y="498" width="118" height="44" rx="8" class="box"/>
@@ -224,10 +230,6 @@
     <line x1="1035" y1="520" x2="1022" y2="520" class="flow" marker-end="url(#ah)"/>
 
 
-    <text x="1095" y="640" class="sans g" font-size="10.5" text-anchor="middle">main.cpp ties</text>
-    <text x="1095" y="655" class="sans g" font-size="10.5" text-anchor="middle">it together</text>
   </g>
 
-  <!-- screen is fed by display/ -->
-  <path d="M1020,646 H1162 V300 H1150" class="flow" marker-end="url(#ah)" opacity="0.6"/>
 </svg>

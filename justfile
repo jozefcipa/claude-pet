@@ -109,10 +109,6 @@ dev: flash monitor
 clean:
     {{ pio }} run -t clean
 
-# show a speech bubble, e.g. `just say "hello"`
-say message duration="0":
-    scripts/say.sh "{{ message }}" {{ duration }}
-
 # set the pet state, e.g. `just state attention "Need you!"`
 state name msg="" tool="":
     curl -4 -sf -m 2 -G "http://{{ host }}/state" \
