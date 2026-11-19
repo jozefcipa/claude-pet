@@ -5,7 +5,7 @@
 // Pins come from the vendor demo + schematic (the wiki pin table is wrong).
 
 // Landscape. ROTATION 1 or 3 picks which side the USB port ends up on.
-#define ROTATION 1
+#define ROTATION 3
 constexpr int W = 320;
 constexpr int H = 172;
 

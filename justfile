@@ -87,7 +87,11 @@ flash:
     if curl -4 -sf -m 2 -o /dev/null "http://{{ host }}/"; then
       {{ pio }} run
       echo "flashing over Wi-Fi ({{ host }})..."
-      curl -4 -sf -m 120 -u "pet:${OTA_PASS:-}" -F "firmware=@.pio/build/pet/firmware.bin" "http://{{ host }}/update" >/dev/null
+      # Origin is required by the updater's CSRF check when OTA_PASS is empty; it reports errors with HTTP 200
+      out=$(curl -4 -sf -m 120 -u "pet:${OTA_PASS:-}" -H "Origin: http://{{ host }}" -F "firmware=@.pio/build/pet/firmware.bin" "http://{{ host }}/update")
+      case "$out" in
+        *rror*) echo "OTA failed: $out" >&2; exit 1 ;;
+      esac
       echo "done, pet is rebooting"
     else
       echo "pet not reachable at {{ host }}, flashing over USB"
